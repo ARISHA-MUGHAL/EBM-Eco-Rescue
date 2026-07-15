@@ -1,0 +1,3022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta
+    name="description"
+    content="EBM Eco Rescue is an interactive environmental awareness game covering water, energy, waste, GHG emissions, paper consumption, nature conservation, and environmental impacts."
+  >
+
+  <meta
+    name="theme-color"
+    content="#0f5132"
+  >
+
+  <title>EBM Eco Rescue</title>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- =========================================================
+       ACCESSIBILITY
+  ========================================================== -->
+
+  <a href="#mainContent" class="skip-link">
+    Skip to main content
+  </a>
+
+  <noscript>
+    <div class="noscript-message">
+      JavaScript is required to run EBM Eco Rescue. Please enable
+      JavaScript in your browser and refresh the page.
+    </div>
+  </noscript>
+
+
+  <!-- =========================================================
+       PAGE BACKGROUND DECORATION
+  ========================================================== -->
+
+  <div class="background-decoration" aria-hidden="true">
+    <span class="background-circle background-circle-one"></span>
+    <span class="background-circle background-circle-two"></span>
+    <span class="background-circle background-circle-three"></span>
+  </div>
+
+
+  <!-- =========================================================
+       MAIN APPLICATION
+  ========================================================== -->
+
+  <div id="app" class="app-shell">
+
+    <!-- =======================================================
+         HEADER
+    ======================================================== -->
+
+    <header class="site-header">
+
+      <div class="header-brand">
+
+        <div class="brand-logo" aria-hidden="true">
+          <span class="brand-logo-leaf">🌿</span>
+        </div>
+
+        <div class="brand-text">
+          <p class="brand-eyebrow">
+            World Nature Conservation Day &amp; Water Awareness Campaign
+          </p>
+
+          <h1 class="brand-title">
+            EBM Eco Rescue
+          </h1>
+
+          <p class="brand-tagline">
+            Every Area. Every Action. Every Drop.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div class="header-actions">
+
+        <button
+          id="soundToggleButton"
+          class="icon-button"
+          type="button"
+          aria-label="Turn sound on or off"
+          aria-pressed="true"
+          title="Sound"
+        >
+          <span class="button-icon" aria-hidden="true">🔊</span>
+        </button>
+
+        <button
+          id="helpButton"
+          class="icon-button"
+          type="button"
+          aria-label="Open game instructions"
+          title="Instructions"
+        >
+          <span class="button-icon" aria-hidden="true">?</span>
+        </button>
+
+        <button
+          id="restartButton"
+          class="icon-button hidden"
+          type="button"
+          aria-label="Restart game"
+          title="Restart game"
+        >
+          <span class="button-icon" aria-hidden="true">↻</span>
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- =======================================================
+         GLOBAL PROGRESS AREA
+    ======================================================== -->
+
+    <section
+      id="globalProgressPanel"
+      class="global-progress-panel hidden"
+      aria-label="Overall game progress"
+    >
+
+      <div class="global-progress-header">
+
+        <div>
+          <p class="section-kicker">
+            Mission Progress
+          </p>
+
+          <h2 class="global-progress-title">
+            Restore EBM's Eco Performance
+          </h2>
+        </div>
+
+        <div class="overall-score-display">
+          <span class="overall-score-label">Eco Score</span>
+
+          <strong id="overallEcoScore">
+            0%
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="main-progress-track">
+        <div
+          id="mainProgressBar"
+          class="main-progress-bar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        ></div>
+      </div>
+
+
+      <div class="progress-summary">
+
+        <span>
+          <strong id="completedAreaCount">0</strong>
+          of
+          <strong id="totalAreaCount">0</strong>
+          areas completed
+        </span>
+
+        <span>
+          <strong id="completedScenarioCount">0</strong>
+          environmental situations resolved
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         MAIN CONTENT
+    ======================================================== -->
+
+    <main id="mainContent" class="main-content">
+
+
+      <!-- =====================================================
+           SCREEN 1: WELCOME
+      ====================================================== -->
+
+      <section
+        id="welcomeScreen"
+        class="game-screen active-screen"
+        aria-labelledby="welcomeTitle"
+      >
+
+        <div class="welcome-layout">
+
+          <article class="welcome-content">
+
+            <div class="welcome-badge">
+              <span aria-hidden="true">🌍</span>
+              Interactive Environmental Awareness Mission
+            </div>
+
+            <h2 id="welcomeTitle" class="welcome-title">
+              The Eco Performance Meter is falling.
+            </h2>
+
+            <p class="welcome-description">
+              Environmental issues have appeared across several fictional
+              EBM work areas. Your mission is to identify environmental
+              aspects, understand their impacts, evaluate their significance,
+              and select the most effective controls.
+            </p>
+
+
+            <div class="campaign-focus-grid">
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">💧</span>
+                <h3>Water</h3>
+                <p>Stop leakage, overflow and unnecessary consumption.</p>
+              </article>
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">⚡</span>
+                <h3>Energy</h3>
+                <p>Identify idle equipment and avoidable energy losses.</p>
+              </article>
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">♻️</span>
+                <h3>Waste</h3>
+                <p>Improve segregation, reuse and responsible disposal.</p>
+              </article>
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">☁️</span>
+                <h3>GHG</h3>
+                <p>Recognize activities that increase carbon emissions.</p>
+              </article>
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">📄</span>
+                <h3>Paper</h3>
+                <p>Promote digital processes and responsible printing.</p>
+              </article>
+
+              <article class="focus-card">
+                <span class="focus-icon" aria-hidden="true">🌳</span>
+                <h3>Nature</h3>
+                <p>Protect land, water, trees and surrounding ecosystems.</p>
+              </article>
+
+            </div>
+
+
+            <div class="welcome-game-flow">
+
+              <h3>How the mission works</h3>
+
+              <ol class="mission-step-list">
+
+                <li>
+                  <span class="step-number">1</span>
+
+                  <div>
+                    <strong>Explore</strong>
+                    <p>Select a fictional EBM work area.</p>
+                  </div>
+                </li>
+
+                <li>
+                  <span class="step-number">2</span>
+
+                  <div>
+                    <strong>Identify</strong>
+                    <p>Find the environmental aspect and its impact.</p>
+                  </div>
+                </li>
+
+                <li>
+                  <span class="step-number">3</span>
+
+                  <div>
+                    <strong>Evaluate</strong>
+                    <p>Rate the impact and likelihood.</p>
+                  </div>
+                </li>
+
+                <li>
+                  <span class="step-number">4</span>
+
+                  <div>
+                    <strong>Control</strong>
+                    <p>Select the most suitable action.</p>
+                  </div>
+                </li>
+
+              </ol>
+
+            </div>
+
+          </article>
+
+
+          <aside class="player-registration-card">
+
+            <div class="registration-card-header">
+
+              <span class="registration-icon" aria-hidden="true">
+                🛡️
+              </span>
+
+              <div>
+                <p class="section-kicker">
+                  Eco Rescue Registration
+                </p>
+
+                <h3>
+                  Enter the mission
+                </h3>
+              </div>
+
+            </div>
+
+
+            <form id="playerRegistrationForm" novalidate>
+
+              <div class="form-group">
+
+                <label for="employeeName">
+                  Employee name
+                  <span class="required-mark" aria-hidden="true">*</span>
+                </label>
+
+                <input
+                  id="employeeName"
+                  name="employeeName"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="name"
+                  placeholder="Enter your full name"
+                  required
+                >
+
+                <p
+                  id="employeeNameError"
+                  class="form-error"
+                  aria-live="polite"
+                ></p>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="employeeId">
+                  Employee ID
+                  <span class="optional-label">(Optional)</span>
+                </label>
+
+                <input
+                  id="employeeId"
+                  name="employeeId"
+                  type="text"
+                  maxlength="30"
+                  placeholder="Enter employee ID"
+                >
+
+              </div>
+
+
+              <div class="form-group">
+
+                <label for="departmentSelect">
+                  Department
+                  <span class="required-mark" aria-hidden="true">*</span>
+                </label>
+
+                <select
+                  id="departmentSelect"
+                  name="department"
+                  required
+                >
+
+                  <option value="">
+                    Select department
+                  </option>
+
+                  <option value="EHS">
+                    EHS
+                  </option>
+
+                  <option value="Production">
+                    Production
+                  </option>
+
+                  <option value="Engineering">
+                    Engineering
+                  </option>
+
+                  <option value="Utilities">
+                    Utilities
+                  </option>
+
+                  <option value="Quality Assurance">
+                    Quality Assurance
+                  </option>
+
+                  <option value="Admin">
+                    Admin
+                  </option>
+
+                  <option value="Material Management">
+                    Material Management
+                  </option>
+
+                  <option value="FGS and Logistics">
+                    FGS &amp; Logistics
+                  </option>
+
+                  <option value="Human Resources">
+                    Human Resources
+                  </option>
+
+                  <option value="Finance">
+                    Finance
+                  </option>
+
+                  <option value="Information Technology">
+                    Information Technology
+                  </option>
+
+                  <option value="Supply Chain">
+                    Supply Chain
+                  </option>
+
+                  <option value="Security">
+                    Security
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+
+                </select>
+
+                <p
+                  id="departmentError"
+                  class="form-error"
+                  aria-live="polite"
+                ></p>
+
+              </div>
+
+
+              <div class="form-group">
+
+                <fieldset>
+
+                  <legend>
+                    Employment type
+                    <span class="required-mark" aria-hidden="true">*</span>
+                  </legend>
+
+                  <div class="radio-card-group">
+
+                    <label class="radio-card">
+
+                      <input
+                        type="radio"
+                        name="employmentType"
+                        value="Permanent"
+                        required
+                      >
+
+                      <span class="radio-card-content">
+                        <span class="radio-card-icon" aria-hidden="true">
+                          👤
+                        </span>
+
+                        <span>
+                          <strong>Permanent</strong>
+                          <small>EBM workforce</small>
+                        </span>
+                      </span>
+
+                    </label>
+
+
+                    <label class="radio-card">
+
+                      <input
+                        type="radio"
+                        name="employmentType"
+                        value="3P"
+                        required
+                      >
+
+                      <span class="radio-card-content">
+                        <span class="radio-card-icon" aria-hidden="true">
+                          👥
+                        </span>
+
+                        <span>
+                          <strong>3P</strong>
+                          <small>Third-party workforce</small>
+                        </span>
+                      </span>
+
+                    </label>
+
+                  </div>
+
+                </fieldset>
+
+                <p
+                  id="employmentTypeError"
+                  class="form-error"
+                  aria-live="polite"
+                ></p>
+
+              </div>
+
+
+              <label class="consent-checkbox">
+
+                <input
+                  id="campaignConsent"
+                  type="checkbox"
+                  required
+                >
+
+                <span>
+                  I understand that this activity is for environmental
+                  awareness and learning.
+                </span>
+
+              </label>
+
+              <p
+                id="consentError"
+                class="form-error"
+                aria-live="polite"
+              ></p>
+
+
+              <button
+                id="startMissionButton"
+                class="primary-button full-width-button"
+                type="submit"
+              >
+                <span>Start Eco Rescue Mission</span>
+                <span aria-hidden="true">→</span>
+              </button>
+
+            </form>
+
+
+            <p class="registration-note">
+              No actual company layout is used. All locations shown in this
+              game are fictional awareness zones.
+            </p>
+
+          </aside>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 2: GAME INTRODUCTION
+      ====================================================== -->
+
+      <section
+        id="missionBriefingScreen"
+        class="game-screen"
+        aria-labelledby="missionBriefingTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <div class="mission-briefing-card">
+
+            <div class="mission-briefing-visual" aria-hidden="true">
+
+              <div class="factory-illustration">
+                <span>🏭</span>
+                <span>🌿</span>
+                <span>💧</span>
+              </div>
+
+            </div>
+
+
+            <div class="mission-briefing-content">
+
+              <p class="section-kicker">
+                Mission Briefing
+              </p>
+
+              <h2 id="missionBriefingTitle">
+                Welcome, <span id="briefingPlayerName">Eco Officer</span>
+              </h2>
+
+              <p>
+                EBM's fictional Eco Campus contains environmental situations
+                involving water, electricity, greenhouse-gas emissions,
+                paper, waste and nature conservation.
+              </p>
+
+
+              <div class="briefing-objectives">
+
+                <article>
+                  <span aria-hidden="true">🔎</span>
+
+                  <div>
+                    <strong>Find the aspect</strong>
+                    <p>
+                      Identify the activity or condition that interacts with
+                      the environment.
+                    </p>
+                  </div>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">🌍</span>
+
+                  <div>
+                    <strong>Understand the impact</strong>
+                    <p>
+                      Determine how the activity affects water, air, land,
+                      people or natural resources.
+                    </p>
+                  </div>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">📊</span>
+
+                  <div>
+                    <strong>Evaluate significance</strong>
+                    <p>
+                      Use impact and occurrence ratings to calculate the
+                      environmental risk level.
+                    </p>
+                  </div>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">🛠️</span>
+
+                  <div>
+                    <strong>Apply controls</strong>
+                    <p>
+                      Select a practical action that prevents or reduces the
+                      environmental impact.
+                    </p>
+                  </div>
+                </article>
+
+              </div>
+
+
+              <div class="briefing-alert">
+
+                <span class="briefing-alert-icon" aria-hidden="true">
+                  ⚠️
+                </span>
+
+                <div>
+                  <strong>Important</strong>
+
+                  <p>
+                    Any issue involving an applicable compliance obligation
+                    may be treated as significant even when its numerical
+                    rating is lower.
+                  </p>
+                </div>
+
+              </div>
+
+
+              <button
+                id="openCampusButton"
+                class="primary-button"
+                type="button"
+              >
+                Enter the Eco Campus
+                <span aria-hidden="true">→</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 3: AREA SELECTION
+      ====================================================== -->
+
+      <section
+        id="campusScreen"
+        class="game-screen"
+        aria-labelledby="campusTitle"
+      >
+
+        <div class="screen-container">
+
+          <div class="screen-heading">
+
+            <div>
+              <p class="section-kicker">
+                Fictional EBM Eco Campus
+              </p>
+
+              <h2 id="campusTitle">
+                Select an area to begin
+              </h2>
+
+              <p>
+                Complete the environmental situations in each area to restore
+                the overall Eco Score.
+              </p>
+            </div>
+
+
+            <div class="player-mini-card">
+
+              <span class="player-avatar" aria-hidden="true">
+                👤
+              </span>
+
+              <div>
+                <strong id="campusPlayerName">
+                  Player
+                </strong>
+
+                <small id="campusPlayerDepartment">
+                  Department
+                </small>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="areaCardGrid"
+            class="area-card-grid"
+            aria-live="polite"
+          >
+
+            <!--
+              Area cards will be inserted by script.js using gameData.js.
+
+              Example areas:
+              - Mixing Area
+              - Cutting Area
+              - Packing Area
+              - Laboratory
+              - Offices
+              - Canteen
+              - Kitchen
+              - Car Parking
+              - Utilities
+              - Waste Yard
+              - Washrooms
+              - Green Area
+            -->
+
+          </div>
+
+
+          <div class="campus-footer-actions">
+
+            <button
+              id="viewScoreDashboardButton"
+              class="secondary-button"
+              type="button"
+            >
+              View Eco Dashboard
+            </button>
+
+            <button
+              id="continueToCommitmentsButton"
+              class="primary-button hidden"
+              type="button"
+            >
+              Continue to Commitments
+              <span aria-hidden="true">→</span>
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 4: AREA INTRODUCTION
+      ====================================================== -->
+
+      <section
+        id="areaIntroductionScreen"
+        class="game-screen"
+        aria-labelledby="areaIntroductionTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <button
+            id="backToCampusFromIntroButton"
+            class="back-button"
+            type="button"
+          >
+            <span aria-hidden="true">←</span>
+            Back to Eco Campus
+          </button>
+
+
+          <article class="area-introduction-card">
+
+            <div
+              id="areaIntroductionVisual"
+              class="area-introduction-visual"
+              aria-hidden="true"
+            >
+              <span id="areaIntroductionIcon">🏭</span>
+            </div>
+
+
+            <div class="area-introduction-content">
+
+              <p id="areaIntroductionKicker" class="section-kicker">
+                Area Mission
+              </p>
+
+              <h2 id="areaIntroductionTitle">
+                Area name
+              </h2>
+
+              <p id="areaIntroductionDescription">
+                Area mission description will appear here.
+              </p>
+
+
+              <div class="area-focus-tags">
+
+                <span class="focus-tag">
+                  <span aria-hidden="true">💧</span>
+                  Water
+                </span>
+
+                <span class="focus-tag">
+                  <span aria-hidden="true">⚡</span>
+                  Energy
+                </span>
+
+                <span class="focus-tag">
+                  <span aria-hidden="true">♻️</span>
+                  Waste
+                </span>
+
+              </div>
+
+
+              <div class="area-mission-summary">
+
+                <article>
+                  <strong id="areaScenarioTotal">0</strong>
+                  <span>Situations</span>
+                </article>
+
+                <article>
+                  <strong id="areaEstimatedTime">3 min</strong>
+                  <span>Estimated time</span>
+                </article>
+
+                <article>
+                  <strong id="areaMaximumScore">100</strong>
+                  <span>Available points</span>
+                </article>
+
+              </div>
+
+
+              <button
+                id="startAreaMissionButton"
+                class="primary-button"
+                type="button"
+              >
+                Start Area Mission
+                <span aria-hidden="true">→</span>
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 5: SCENARIO
+      ====================================================== -->
+
+      <section
+        id="scenarioScreen"
+        class="game-screen"
+        aria-labelledby="scenarioTitle"
+      >
+
+        <div class="screen-container">
+
+          <div class="scenario-topbar">
+
+            <button
+              id="exitScenarioButton"
+              class="back-button"
+              type="button"
+            >
+              <span aria-hidden="true">←</span>
+              Exit Area
+            </button>
+
+
+            <div class="scenario-progress">
+
+              <span>
+                Situation
+                <strong id="currentScenarioNumber">1</strong>
+                of
+                <strong id="scenarioCount">3</strong>
+              </span>
+
+              <div class="scenario-progress-track">
+                <div
+                  id="scenarioProgressBar"
+                  class="scenario-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+            </div>
+
+
+            <div class="area-score-pill">
+              <span>Area Score</span>
+              <strong id="currentAreaScore">0</strong>
+            </div>
+
+          </div>
+
+
+          <div class="scenario-layout">
+
+            <!-- Scenario visual -->
+            <article class="scenario-scene-card">
+
+              <div class="scenario-scene-header">
+
+                <div>
+                  <p id="scenarioAreaName" class="section-kicker">
+                    Area
+                  </p>
+
+                  <h2 id="scenarioTitle">
+                    Scenario title
+                  </h2>
+                </div>
+
+                <span
+                  id="scenarioCategoryBadge"
+                  class="scenario-category-badge"
+                >
+                  Water
+                </span>
+
+              </div>
+
+
+              <div
+                id="scenarioScene"
+                class="scenario-scene"
+                role="img"
+                aria-label="Environmental scenario illustration"
+              >
+
+                <div
+                  id="scenarioScenePlaceholder"
+                  class="scenario-scene-placeholder"
+                >
+                  <span id="scenarioSceneIcon" aria-hidden="true">🌿</span>
+
+                  <p>
+                    Scenario illustration
+                  </p>
+                </div>
+
+
+                <!--
+                  Clickable hotspots may be generated inside this container
+                  by script.js.
+                -->
+
+                <div
+                  id="scenarioHotspotLayer"
+                  class="scenario-hotspot-layer"
+                ></div>
+
+              </div>
+
+
+              <div class="scenario-observation-box">
+
+                <span class="observation-icon" aria-hidden="true">
+                  👀
+                </span>
+
+                <div>
+                  <strong>What you observe</strong>
+
+                  <p id="scenarioObservation">
+                    Scenario observation will appear here.
+                  </p>
+                </div>
+
+              </div>
+
+            </article>
+
+
+            <!-- Scenario task -->
+            <aside class="scenario-task-card">
+
+              <div class="task-step-indicator">
+
+                <button
+                  class="task-step active-task-step"
+                  type="button"
+                  data-task-step="aspect"
+                  disabled
+                >
+                  <span>1</span>
+                  Aspect
+                </button>
+
+                <button
+                  class="task-step"
+                  type="button"
+                  data-task-step="impact"
+                  disabled
+                >
+                  <span>2</span>
+                  Impact
+                </button>
+
+                <button
+                  class="task-step"
+                  type="button"
+                  data-task-step="rating"
+                  disabled
+                >
+                  <span>3</span>
+                  Rating
+                </button>
+
+                <button
+                  class="task-step"
+                  type="button"
+                  data-task-step="control"
+                  disabled
+                >
+                  <span>4</span>
+                  Control
+                </button>
+
+              </div>
+
+
+              <!-- =============================================
+                   TASK 1: IDENTIFY ASPECT
+              ============================================== -->
+
+              <div
+                id="aspectTaskPanel"
+                class="task-panel active-task-panel"
+              >
+
+                <p class="task-label">
+                  Step 1 of 4
+                </p>
+
+                <h3>
+                  Identify the environmental aspect
+                </h3>
+
+                <p class="task-instruction">
+                  Select the activity, condition, product or service that
+                  interacts with the environment.
+                </p>
+
+
+                <div
+                  id="aspectOptionList"
+                  class="answer-option-list"
+                  role="radiogroup"
+                  aria-label="Environmental aspect options"
+                ></div>
+
+
+                <button
+                  id="submitAspectButton"
+                  class="primary-button full-width-button"
+                  type="button"
+                  disabled
+                >
+                  Confirm Aspect
+                </button>
+
+              </div>
+
+
+              <!-- =============================================
+                   TASK 2: IDENTIFY IMPACT
+              ============================================== -->
+
+              <div
+                id="impactTaskPanel"
+                class="task-panel"
+              >
+
+                <p class="task-label">
+                  Step 2 of 4
+                </p>
+
+                <h3>
+                  Identify the environmental impact
+                </h3>
+
+                <p class="task-instruction">
+                  Select the change to the environment caused by the
+                  identified aspect.
+                </p>
+
+
+                <div
+                  id="impactOptionList"
+                  class="answer-option-list"
+                  role="radiogroup"
+                  aria-label="Environmental impact options"
+                ></div>
+
+
+                <button
+                  id="submitImpactButton"
+                  class="primary-button full-width-button"
+                  type="button"
+                  disabled
+                >
+                  Confirm Impact
+                </button>
+
+              </div>
+
+
+              <!-- =============================================
+                   TASK 3: RATE IMPACT
+              ============================================== -->
+
+              <div
+                id="ratingTaskPanel"
+                class="task-panel"
+              >
+
+                <p class="task-label">
+                  Step 3 of 4
+                </p>
+
+                <h3>
+                  Evaluate the environmental impact
+                </h3>
+
+                <p class="task-instruction">
+                  Select the consequence level and how frequently the issue
+                  occurs.
+                </p>
+
+
+                <div class="rating-section">
+
+                  <fieldset>
+
+                    <legend>
+                      Environmental consequence
+                    </legend>
+
+                    <div
+                      id="impactLevelOptions"
+                      class="rating-option-grid"
+                    >
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="impactLevel"
+                          value="1"
+                        >
+
+                        <span>
+                          <strong>1 — Minor</strong>
+                          <small>Minor or negligible impact</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="impactLevel"
+                          value="2"
+                        >
+
+                        <span>
+                          <strong>2 — Moderate</strong>
+                          <small>Moderate, short-term impact</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="impactLevel"
+                          value="3"
+                        >
+
+                        <span>
+                          <strong>3 — Major</strong>
+                          <small>Major or long-term impact</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="impactLevel"
+                          value="4"
+                        >
+
+                        <span>
+                          <strong>4 — Severe</strong>
+                          <small>Severe or widespread impact</small>
+                        </span>
+                      </label>
+
+                    </div>
+
+                  </fieldset>
+
+                </div>
+
+
+                <div class="rating-section">
+
+                  <fieldset>
+
+                    <legend>
+                      Probability, occurrence or consumption
+                    </legend>
+
+                    <div
+                      id="likelihoodOptions"
+                      class="rating-option-grid"
+                    >
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="likelihoodLevel"
+                          value="1"
+                        >
+
+                        <span>
+                          <strong>1 — Rare</strong>
+                          <small>Unlikely or occasional</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="likelihoodLevel"
+                          value="2"
+                        >
+
+                        <span>
+                          <strong>2 — Sometimes</strong>
+                          <small>Occurs periodically</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="likelihoodLevel"
+                          value="3"
+                        >
+
+                        <span>
+                          <strong>3 — Intermittent</strong>
+                          <small>Occurs several times</small>
+                        </span>
+                      </label>
+
+
+                      <label class="rating-option">
+                        <input
+                          type="radio"
+                          name="likelihoodLevel"
+                          value="4"
+                        >
+
+                        <span>
+                          <strong>4 — Continuous</strong>
+                          <small>Occurs continuously</small>
+                        </span>
+                      </label>
+
+                    </div>
+
+                  </fieldset>
+
+                </div>
+
+
+                <div class="live-rating-calculator">
+
+                  <div>
+                    <span>Impact</span>
+                    <strong id="selectedImpactValue">—</strong>
+                  </div>
+
+                  <span class="calculation-symbol" aria-hidden="true">
+                    ×
+                  </span>
+
+                  <div>
+                    <span>Occurrence</span>
+                    <strong id="selectedLikelihoodValue">—</strong>
+                  </div>
+
+                  <span class="calculation-symbol" aria-hidden="true">
+                    =
+                  </span>
+
+                  <div>
+                    <span>Rating</span>
+                    <strong id="calculatedRatingValue">—</strong>
+                  </div>
+
+                </div>
+
+
+                <div
+                  id="calculatedImpactCategory"
+                  class="calculated-impact-category hidden"
+                  aria-live="polite"
+                >
+
+                  <span id="calculatedImpactBadge">
+                    Low
+                  </span>
+
+                  <p id="calculatedImpactMessage">
+                    Maintain current controls.
+                  </p>
+
+                </div>
+
+
+                <button
+                  id="submitRatingButton"
+                  class="primary-button full-width-button"
+                  type="button"
+                  disabled
+                >
+                  Confirm Rating
+                </button>
+
+              </div>
+
+
+              <!-- =============================================
+                   TASK 4: SELECT CONTROL
+              ============================================== -->
+
+              <div
+                id="controlTaskPanel"
+                class="task-panel"
+              >
+
+                <p class="task-label">
+                  Step 4 of 4
+                </p>
+
+                <h3>
+                  Select the most suitable control
+                </h3>
+
+                <p class="task-instruction">
+                  Choose the action that best prevents, reduces or controls
+                  the environmental impact.
+                </p>
+
+
+                <div
+                  id="controlOptionList"
+                  class="answer-option-list"
+                  role="radiogroup"
+                  aria-label="Environmental control options"
+                ></div>
+
+
+                <button
+                  id="submitControlButton"
+                  class="primary-button full-width-button"
+                  type="button"
+                  disabled
+                >
+                  Apply Control
+                </button>
+
+              </div>
+
+            </aside>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 6: SCENARIO FEEDBACK
+      ====================================================== -->
+
+      <section
+        id="scenarioFeedbackScreen"
+        class="game-screen"
+        aria-labelledby="feedbackTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <article class="feedback-card">
+
+            <div
+              id="feedbackStatusIcon"
+              class="feedback-status-icon"
+              aria-hidden="true"
+            >
+              ✓
+            </div>
+
+
+            <p id="feedbackKicker" class="section-kicker">
+              Situation Resolved
+            </p>
+
+            <h2 id="feedbackTitle">
+              Good environmental decision
+            </h2>
+
+            <p id="feedbackSummary">
+              Feedback summary will appear here.
+            </p>
+
+
+            <div class="aspect-impact-summary">
+
+              <article>
+                <span class="summary-label">
+                  Environmental Aspect
+                </span>
+
+                <strong id="feedbackAspect">
+                  Aspect
+                </strong>
+              </article>
+
+              <div class="cause-effect-arrow" aria-hidden="true">
+                →
+              </div>
+
+              <article>
+                <span class="summary-label">
+                  Environmental Impact
+                </span>
+
+                <strong id="feedbackImpact">
+                  Impact
+                </strong>
+              </article>
+
+            </div>
+
+
+            <div class="impact-result-card">
+
+              <div>
+                <span>Impact Rating</span>
+                <strong id="feedbackImpactRating">0</strong>
+              </div>
+
+              <div>
+                <span>Impact Level</span>
+                <strong id="feedbackImpactLevel">Low</strong>
+              </div>
+
+              <div>
+                <span>Points Earned</span>
+                <strong id="feedbackPointsEarned">0</strong>
+              </div>
+
+            </div>
+
+
+            <div class="learning-message-box">
+
+              <span class="learning-icon" aria-hidden="true">
+                💡
+              </span>
+
+              <div>
+                <strong>Awareness Message</strong>
+
+                <p id="feedbackAwarenessMessage">
+                  Awareness message will appear here.
+                </p>
+              </div>
+
+            </div>
+
+
+            <div
+              id="complianceAlertBox"
+              class="compliance-alert-box hidden"
+            >
+
+              <span aria-hidden="true">⚠️</span>
+
+              <div>
+                <strong>
+                  Compliance obligation identified
+                </strong>
+
+                <p>
+                  This environmental aspect must be addressed through
+                  adequate controls regardless of the initial numerical
+                  rating.
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="feedback-action-row">
+
+              <button
+                id="nextScenarioButton"
+                class="primary-button"
+                type="button"
+              >
+                Next Situation
+                <span aria-hidden="true">→</span>
+              </button>
+
+              <button
+                id="completeAreaButton"
+                class="primary-button hidden"
+                type="button"
+              >
+                Complete Area
+                <span aria-hidden="true">✓</span>
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 7: AREA COMPLETION
+      ====================================================== -->
+
+      <section
+        id="areaCompletionScreen"
+        class="game-screen"
+        aria-labelledby="areaCompletionTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <article class="area-completion-card">
+
+            <div class="completion-animation" aria-hidden="true">
+
+              <span class="completion-main-icon">🌱</span>
+              <span class="completion-spark spark-one">✦</span>
+              <span class="completion-spark spark-two">✦</span>
+              <span class="completion-spark spark-three">✦</span>
+
+            </div>
+
+            <p class="section-kicker">
+              Area Restored
+            </p>
+
+            <h2 id="areaCompletionTitle">
+              Mission completed
+            </h2>
+
+            <p id="areaCompletionMessage">
+              You successfully resolved the environmental situations in this
+              area.
+            </p>
+
+
+            <div class="area-completion-stat-grid">
+
+              <article>
+                <span>Area Score</span>
+                <strong id="areaCompletionScore">0</strong>
+              </article>
+
+              <article>
+                <span>Correct Decisions</span>
+                <strong id="areaCorrectDecisionCount">0</strong>
+              </article>
+
+              <article>
+                <span>Eco Score Improvement</span>
+                <strong id="areaEcoImprovement">+0%</strong>
+              </article>
+
+            </div>
+
+
+            <div class="area-learning-summary">
+
+              <h3>
+                What this area taught you
+              </h3>
+
+              <ul id="areaLearningPointList">
+                <!-- Learning points inserted dynamically -->
+              </ul>
+
+            </div>
+
+
+            <button
+              id="returnToCampusButton"
+              class="primary-button"
+              type="button"
+            >
+              Return to Eco Campus
+              <span aria-hidden="true">→</span>
+            </button>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 8: ECO DASHBOARD
+      ====================================================== -->
+
+      <section
+        id="ecoDashboardScreen"
+        class="game-screen"
+        aria-labelledby="ecoDashboardTitle"
+      >
+
+        <div class="screen-container">
+
+          <button
+            id="backToCampusFromDashboardButton"
+            class="back-button"
+            type="button"
+          >
+            <span aria-hidden="true">←</span>
+            Back to Eco Campus
+          </button>
+
+
+          <div class="screen-heading">
+
+            <div>
+              <p class="section-kicker">
+                Environmental Performance
+              </p>
+
+              <h2 id="ecoDashboardTitle">
+                Your Eco Dashboard
+              </h2>
+
+              <p>
+                Review your performance across the main environmental themes.
+              </p>
+            </div>
+
+          </div>
+
+
+          <div class="eco-dashboard-grid">
+
+            <article
+              class="eco-metric-card"
+              data-metric="water"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">💧</span>
+                <span>Water Efficiency</span>
+              </div>
+
+              <strong id="waterMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="waterMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Leakage, overflow, controlled cleaning and water reuse.
+              </p>
+
+            </article>
+
+
+            <article
+              class="eco-metric-card"
+              data-metric="energy"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">⚡</span>
+                <span>Energy Efficiency</span>
+              </div>
+
+              <strong id="energyMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="energyMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Electricity, compressed air, steam and idle equipment.
+              </p>
+
+            </article>
+
+
+            <article
+              class="eco-metric-card"
+              data-metric="waste"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">♻️</span>
+                <span>Waste Management</span>
+              </div>
+
+              <strong id="wasteMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="wasteMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Segregation, recycling, reuse and responsible disposal.
+              </p>
+
+            </article>
+
+
+            <article
+              class="eco-metric-card"
+              data-metric="ghg"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">☁️</span>
+                <span>GHG Awareness</span>
+              </div>
+
+              <strong id="ghgMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="ghgMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Fuel consumption, vehicle idling and indirect emissions.
+              </p>
+
+            </article>
+
+
+            <article
+              class="eco-metric-card"
+              data-metric="paper"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">📄</span>
+                <span>Paper Reduction</span>
+              </div>
+
+              <strong id="paperMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="paperMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Digital review, double-sided printing and responsible use.
+              </p>
+
+            </article>
+
+
+            <article
+              class="eco-metric-card"
+              data-metric="nature"
+            >
+
+              <div class="metric-card-header">
+                <span class="metric-icon" aria-hidden="true">🌳</span>
+                <span>Nature Protection</span>
+              </div>
+
+              <strong id="natureMetricScore">0%</strong>
+
+              <div class="metric-progress-track">
+                <div
+                  id="natureMetricBar"
+                  class="metric-progress-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                ></div>
+              </div>
+
+              <p>
+                Trees, soil, biodiversity, land and water protection.
+              </p>
+
+            </article>
+
+          </div>
+
+
+          <div class="impact-awareness-summary">
+
+            <article class="impact-summary-card low-impact-card">
+
+              <span class="impact-summary-badge">
+                Low
+              </span>
+
+              <strong id="lowImpactDecisionCount">
+                0
+              </strong>
+
+              <p>
+                Acceptable impacts where current controls can be maintained.
+              </p>
+
+            </article>
+
+
+            <article class="impact-summary-card medium-impact-card">
+
+              <span class="impact-summary-badge">
+                Medium
+              </span>
+
+              <strong id="mediumImpactDecisionCount">
+                0
+              </strong>
+
+              <p>
+                Tolerable impacts requiring action within a reasonable time.
+              </p>
+
+            </article>
+
+
+            <article class="impact-summary-card high-impact-card">
+
+              <span class="impact-summary-badge">
+                High
+              </span>
+
+              <strong id="highImpactDecisionCount">
+                0
+              </strong>
+
+              <p>
+                Significant impacts requiring prompt corrective action.
+              </p>
+
+            </article>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 9: PERSONAL COMMITMENTS
+      ====================================================== -->
+
+      <section
+        id="commitmentScreen"
+        class="game-screen"
+        aria-labelledby="commitmentTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <div class="commitment-heading">
+
+            <p class="section-kicker">
+              From Awareness to Action
+            </p>
+
+            <h2 id="commitmentTitle">
+              Select three environmental commitments
+            </h2>
+
+            <p>
+              Choose three actions that you will apply in your work area or
+              daily routine.
+            </p>
+
+          </div>
+
+
+          <form id="commitmentForm">
+
+            <div
+              id="commitmentCardGrid"
+              class="commitment-card-grid"
+            >
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Report water leakage immediately"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">💧</span>
+
+                  <span>
+                    <strong>Report water leakage immediately</strong>
+
+                    <small>
+                      Raise timely reports for leaking taps, pipes, tanks and
+                      overflow.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Use water carefully during cleaning"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">🚿</span>
+
+                  <span>
+                    <strong>Use water carefully during cleaning</strong>
+
+                    <small>
+                      Avoid continuous hose use and apply controlled cleaning
+                      methods.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Switch off unnecessary equipment"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">⚡</span>
+
+                  <span>
+                    <strong>Switch off unnecessary equipment</strong>
+
+                    <small>
+                      Turn off lights and equipment when operationally
+                      permitted.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Report compressed air and steam leaks"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">🔧</span>
+
+                  <span>
+                    <strong>Report compressed-air and steam leaks</strong>
+
+                    <small>
+                      Prevent avoidable energy loss and indirect GHG
+                      emissions.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Segregate waste correctly"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">♻️</span>
+
+                  <span>
+                    <strong>Segregate waste correctly</strong>
+
+                    <small>
+                      Place recyclable, food, general and hazardous waste in
+                      approved categories.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Reduce unnecessary paper printing"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">📄</span>
+
+                  <span>
+                    <strong>Reduce unnecessary paper printing</strong>
+
+                    <small>
+                      Use digital review and double-sided printing where
+                      suitable.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Avoid unnecessary vehicle idling"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">🚗</span>
+
+                  <span>
+                    <strong>Avoid unnecessary vehicle idling</strong>
+
+                    <small>
+                      Reduce fuel consumption, air pollution and GHG
+                      emissions.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Protect green areas and trees"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">🌳</span>
+
+                  <span>
+                    <strong>Protect green areas and trees</strong>
+
+                    <small>
+                      Prevent littering, damage, burning and unnecessary
+                      disturbance.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+
+              <label class="commitment-card">
+
+                <input
+                  type="checkbox"
+                  name="commitment"
+                  value="Prevent materials and chemicals from entering drains"
+                >
+
+                <span class="commitment-card-content">
+                  <span class="commitment-icon" aria-hidden="true">🧪</span>
+
+                  <span>
+                    <strong>Protect drains from contamination</strong>
+
+                    <small>
+                      Never dispose of food, chemicals, oil or waste into
+                      drains.
+                    </small>
+                  </span>
+                </span>
+
+              </label>
+
+            </div>
+
+
+            <div class="commitment-selection-status">
+
+              <span>
+                Selected:
+                <strong id="selectedCommitmentCount">0</strong>
+                of 3
+              </span>
+
+              <p
+                id="commitmentError"
+                class="form-error"
+                aria-live="polite"
+              ></p>
+
+            </div>
+
+
+            <button
+              id="submitCommitmentsButton"
+              class="primary-button full-width-button"
+              type="submit"
+              disabled
+            >
+              Confirm My Commitments
+              <span aria-hidden="true">→</span>
+            </button>
+
+          </form>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 10: FINAL RESULT
+      ====================================================== -->
+
+      <section
+        id="finalResultScreen"
+        class="game-screen"
+        aria-labelledby="finalResultTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <article class="final-result-card">
+
+            <div class="final-result-banner">
+
+              <span class="final-result-icon" aria-hidden="true">
+                🌍
+              </span>
+
+              <div>
+                <p class="section-kicker">
+                  Eco Rescue Mission Completed
+                </p>
+
+                <h2 id="finalResultTitle">
+                  The Eco Campus has been restored
+                </h2>
+              </div>
+
+            </div>
+
+
+            <p class="final-result-message">
+              You identified environmental aspects, understood their impacts,
+              evaluated their significance and selected appropriate controls.
+            </p>
+
+
+            <div class="final-score-circle">
+
+              <svg
+                class="score-circle-svg"
+                viewBox="0 0 140 140"
+                role="img"
+                aria-labelledby="finalScoreCircleTitle"
+              >
+
+                <title id="finalScoreCircleTitle">
+                  Final Eco Score
+                </title>
+
+                <circle
+                  class="score-circle-background"
+                  cx="70"
+                  cy="70"
+                  r="58"
+                ></circle>
+
+                <circle
+                  id="finalScoreCircleProgress"
+                  class="score-circle-progress"
+                  cx="70"
+                  cy="70"
+                  r="58"
+                ></circle>
+
+              </svg>
+
+              <div class="final-score-content">
+
+                <strong id="finalEcoScore">
+                  0%
+                </strong>
+
+                <span>
+                  Eco Score
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="final-result-level">
+
+              <span id="finalResultBadge">
+                Eco Learner
+              </span>
+
+              <p id="finalResultDescription">
+                Final result description will appear here.
+              </p>
+
+            </div>
+
+
+            <div class="final-stat-grid">
+
+              <article>
+                <span>Areas Completed</span>
+                <strong id="finalAreasCompleted">0</strong>
+              </article>
+
+              <article>
+                <span>Situations Resolved</span>
+                <strong id="finalScenariosCompleted">0</strong>
+              </article>
+
+              <article>
+                <span>Correct Decisions</span>
+                <strong id="finalCorrectDecisionPercentage">0%</strong>
+              </article>
+
+              <article>
+                <span>High Impacts Identified</span>
+                <strong id="finalHighImpactCount">0</strong>
+              </article>
+
+            </div>
+
+
+            <div class="final-commitment-summary">
+
+              <h3>
+                My environmental commitments
+              </h3>
+
+              <ol id="finalCommitmentList">
+                <!-- Selected commitments inserted by script.js -->
+              </ol>
+
+            </div>
+
+
+            <div
+              id="submissionStatusBox"
+              class="submission-status-box"
+              aria-live="polite"
+            >
+
+              <span
+                id="submissionStatusIcon"
+                aria-hidden="true"
+              >
+                ⏳
+              </span>
+
+              <p id="submissionStatusMessage">
+                Your campaign result is ready to submit.
+              </p>
+
+            </div>
+
+
+            <div class="final-action-row">
+
+              <button
+                id="submitFinalResultButton"
+                class="primary-button"
+                type="button"
+              >
+                Submit My Result
+                <span aria-hidden="true">✓</span>
+              </button>
+
+              <button
+                id="playAgainButton"
+                class="secondary-button"
+                type="button"
+              >
+                Play Again
+              </button>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================================================
+           SCREEN 11: THANK YOU
+      ====================================================== -->
+
+      <section
+        id="thankYouScreen"
+        class="game-screen"
+        aria-labelledby="thankYouTitle"
+      >
+
+        <div class="screen-container narrow-container">
+
+          <article class="thank-you-card">
+
+            <div class="thank-you-illustration" aria-hidden="true">
+              <span>🌍</span>
+              <span>💧</span>
+              <span>🌿</span>
+            </div>
+
+            <p class="section-kicker">
+              Thank You for Participating
+            </p>
+
+            <h2 id="thankYouTitle">
+              Environmental protection continues beyond the game
+            </h2>
+
+            <p>
+              Every employee, every shift and every work area can contribute
+              to better environmental performance through responsible daily
+              decisions.
+            </p>
+
+
+            <blockquote>
+              Identify the aspect. Understand the impact. Apply the control.
+            </blockquote>
+
+
+            <div class="thank-you-action-grid">
+
+              <article>
+                <span aria-hidden="true">💧</span>
+                <strong>Save water</strong>
+              </article>
+
+              <article>
+                <span aria-hidden="true">⚡</span>
+                <strong>Save energy</strong>
+              </article>
+
+              <article>
+                <span aria-hidden="true">♻️</span>
+                <strong>Reduce waste</strong>
+              </article>
+
+              <article>
+                <span aria-hidden="true">🌳</span>
+                <strong>Protect nature</strong>
+              </article>
+
+            </div>
+
+
+            <button
+              id="thankYouRestartButton"
+              class="secondary-button"
+              type="button"
+            >
+              Return to Start
+            </button>
+
+          </article>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =======================================================
+         FOOTER
+    ======================================================== -->
+
+    <footer class="site-footer">
+
+      <p>
+        EBM Eco Rescue — Environmental Awareness Campaign
+      </p>
+
+      <p>
+        Fictional awareness areas only. No actual company layout is displayed.
+      </p>
+
+    </footer>
+
+  </div>
+
+
+  <!-- =========================================================
+       HELP MODAL
+  ========================================================== -->
+
+  <div
+    id="helpModal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="helpModalTitle"
+  >
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+
+        <div>
+          <p class="section-kicker">
+            Game Instructions
+          </p>
+
+          <h2 id="helpModalTitle">
+            How to play EBM Eco Rescue
+          </h2>
+        </div>
+
+        <button
+          id="closeHelpModalButton"
+          class="modal-close-button"
+          type="button"
+          aria-label="Close instructions"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <ol class="instruction-list">
+
+          <li>
+            Select a fictional EBM work area.
+          </li>
+
+          <li>
+            Read the environmental situation carefully.
+          </li>
+
+          <li>
+            Identify the environmental aspect.
+          </li>
+
+          <li>
+            Select the associated environmental impact.
+          </li>
+
+          <li>
+            Rate the impact and occurrence level.
+          </li>
+
+          <li>
+            Select the most appropriate control.
+          </li>
+
+          <li>
+            Complete all areas and choose three personal commitments.
+          </li>
+
+        </ol>
+
+
+        <div class="modal-information-box">
+
+          <strong>Impact rating formula</strong>
+
+          <p>
+            Environmental Impact Rating = Impact Level × Likelihood,
+            Occurrence or Consumption Level
+          </p>
+
+        </div>
+
+
+        <div class="impact-legend">
+
+          <div class="impact-legend-item low-legend-item">
+            <span>1–4</span>
+
+            <div>
+              <strong>Low</strong>
+              <small>Acceptable</small>
+            </div>
+          </div>
+
+          <div class="impact-legend-item medium-legend-item">
+            <span>6–9</span>
+
+            <div>
+              <strong>Medium</strong>
+              <small>Tolerable</small>
+            </div>
+          </div>
+
+          <div class="impact-legend-item high-legend-item">
+            <span>12–16</span>
+
+            <div>
+              <strong>High</strong>
+              <small>Significant</small>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       RESTART CONFIRMATION MODAL
+  ========================================================== -->
+
+  <div
+    id="restartConfirmationModal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="restartConfirmationTitle"
+  >
+
+    <div class="modal-card small-modal-card">
+
+      <div class="modal-header">
+
+        <div>
+          <p class="section-kicker">
+            Restart Mission
+          </p>
+
+          <h2 id="restartConfirmationTitle">
+            Start again?
+          </h2>
+        </div>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <p>
+          Your current progress will be cleared. This action cannot be undone.
+        </p>
+
+
+        <div class="modal-action-row">
+
+          <button
+            id="cancelRestartButton"
+            class="secondary-button"
+            type="button"
+          >
+            Continue Current Game
+          </button>
+
+          <button
+            id="confirmRestartButton"
+            class="danger-button"
+            type="button"
+          >
+            Restart Game
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       EXIT AREA CONFIRMATION MODAL
+  ========================================================== -->
+
+  <div
+    id="exitAreaConfirmationModal"
+    class="modal-overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="exitAreaConfirmationTitle"
+  >
+
+    <div class="modal-card small-modal-card">
+
+      <div class="modal-header">
+
+        <div>
+          <p class="section-kicker">
+            Exit Area Mission
+          </p>
+
+          <h2 id="exitAreaConfirmationTitle">
+            Return to the Eco Campus?
+          </h2>
+        </div>
+
+      </div>
+
+
+      <div class="modal-body">
+
+        <p>
+          Progress within the current environmental situation may be lost.
+        </p>
+
+
+        <div class="modal-action-row">
+
+          <button
+            id="cancelExitAreaButton"
+            class="secondary-button"
+            type="button"
+          >
+            Continue Mission
+          </button>
+
+          <button
+            id="confirmExitAreaButton"
+            class="danger-button"
+            type="button"
+          >
+            Exit Area
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       LOADING OVERLAY
+  ========================================================== -->
+
+  <div
+    id="loadingOverlay"
+    class="loading-overlay hidden"
+    role="status"
+    aria-live="polite"
+  >
+
+    <div class="loading-card">
+
+      <div class="loading-spinner" aria-hidden="true"></div>
+
+      <strong id="loadingTitle">
+        Preparing Eco Rescue
+      </strong>
+
+      <p id="loadingMessage">
+        Please wait...
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       TOAST NOTIFICATION
+  ========================================================== -->
+
+  <div
+    id="toastContainer"
+    class="toast-container"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+
+  <!-- =========================================================
+       CONFETTI / COMPLETION EFFECT LAYER
+  ========================================================== -->
+
+  <div
+    id="celebrationLayer"
+    class="celebration-layer"
+    aria-hidden="true"
+  ></div>
+
+
+  <!-- =========================================================
+       DYNAMIC TEMPLATES
+  ========================================================== -->
+
+  <!-- Area card template -->
+  <template id="areaCardTemplate">
+
+    <article class="area-card">
+
+      <div class="area-card-visual">
+
+        <span class="area-card-icon" aria-hidden="true">
+          🏭
+        </span>
+
+        <span class="area-status-badge">
+          Not Started
+        </span>
+
+      </div>
+
+
+      <div class="area-card-content">
+
+        <div>
+
+          <p class="area-card-category">
+            Environmental Zone
+          </p>
+
+          <h3 class="area-card-title">
+            Area title
+          </h3>
+
+          <p class="area-card-description">
+            Area description
+          </p>
+
+        </div>
+
+
+        <div class="area-card-focus-list">
+          <!-- Focus tags inserted dynamically -->
+        </div>
+
+
+        <div class="area-card-footer">
+
+          <span class="area-card-progress-text">
+            0 of 0 completed
+          </span>
+
+          <button
+            class="area-card-button"
+            type="button"
+          >
+            Enter Area
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </article>
+
+  </template>
+
+
+  <!-- Answer option template -->
+  <template id="answerOptionTemplate">
+
+    <label class="answer-option">
+
+      <input
+        type="radio"
+        name=""
+        value=""
+      >
+
+      <span class="answer-option-indicator" aria-hidden="true">
+        A
+      </span>
+
+      <span class="answer-option-text">
+        Answer option
+      </span>
+
+    </label>
+
+  </template>
+
+
+  <!-- Commitment final list template -->
+  <template id="finalCommitmentItemTemplate">
+
+    <li>
+      <span class="commitment-check" aria-hidden="true">
+        ✓
+      </span>
+
+      <span class="final-commitment-text">
+        Commitment
+      </span>
+    </li>
+
+  </template>
+
+
+  <!-- Toast template -->
+  <template id="toastTemplate">
+
+    <div class="toast-message">
+
+      <span class="toast-icon" aria-hidden="true">
+        ✓
+      </span>
+
+      <p class="toast-text">
+        Message
+      </p>
+
+      <button
+        class="toast-close-button"
+        type="button"
+        aria-label="Close notification"
+      >
+        ×
+      </button>
+
+    </div>
+
+  </template>
+
+
+  <!-- =========================================================
+       JAVASCRIPT FILES
+
+       Loading order matters:
+       1. gameData.js contains the areas and scenarios.
+       2. impactMatrix.js contains environmental rating logic.
+       3. script.js controls the complete game.
+  ========================================================== -->
+
+  <script src="gameData.js"></script>
+  <script src="impactMatrix.js"></script>
+  <script src="script.js"></script>
+
+</body>
+</html>
