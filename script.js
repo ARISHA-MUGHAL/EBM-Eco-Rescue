@@ -3,27 +3,6 @@
 /* ============================================================
    EBM ECO RESCUE
    MAIN GAME INTERACTION
-
-   File: script.js
-
-   Loading order in index.html:
-   1. gameData.js
-   2. impactMatrix.js
-   3. script.js
-
-   Main responsibilities:
-   - Register the player
-   - Control screen navigation
-   - Generate fictional EBM area cards
-   - Run environmental scenarios
-   - Manage Aspect, Impact, Rating and Control steps
-   - Calculate player scores
-   - Update Eco Score and environmental metrics
-   - Manage area completion
-   - Manage personal commitments
-   - Display final results
-   - Save game progress in the browser
-   - Submit final results to Google Apps Script
 ============================================================ */
 
 
@@ -33,42 +12,23 @@
 
 const EBM_APP_CONFIG = Object.freeze({
   storageKey: "ebmEcoRescueGameStateV1",
-
   soundStorageKey: "ebmEcoRescueSoundV1",
 
   autoSaveEnabled: true,
-
   randomizeAnswerOptions: true,
-
   restoreSavedProgress: true,
-
   showCorrectAnswerAfterSubmission: true,
-
   allowAreaReplay: true,
-
   requireAllAreasBeforeCommitments: true,
 
   requiredCommitments: 3,
-
   toastDuration: 3500,
-
   transitionDelay: 180,
-
   submissionTimeout: 15000,
 
-  /*
-   * Replace this value after deploying appsScript.gs
-   * as a Google Apps Script Web App.
-   *
-   * Example:
-   * https://script.google.com/macros/s/DEPLOYMENT_ID/exec
-   */
-  
-
-  googleAppsScriptUrl:
-  "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec",
-
-enableGoogleSheetSubmission: true
+  googleAppsScriptUrl: "",
+  enableGoogleSheetSubmission: false
+});
 
 
 /* ============================================================
@@ -94,11 +54,6 @@ const EBM_SCREEN_IDS = Object.freeze([
    3. INITIAL GAME STATE
 ============================================================ */
 
-/**
- * Creates the complete default application state.
- *
- * @returns {object}
- */
 function createDefaultGameState() {
   const scoringState =
     typeof window.createInitialEnvironmentalScoreState === "function"
@@ -107,11 +62,15 @@ function createDefaultGameState() {
           totalScore: 0,
           maximumScore: 0,
           ecoScore: 0,
+
           completedAreaIds: [],
           completedScenarioIds: [],
           scenarioResults: [],
+
           areaResults: {},
+
           metrics: {},
+
           impactCounts: {
             low: 0,
             medium: 0,
@@ -119,7 +78,9 @@ function createDefaultGameState() {
             compliancePriority: 0,
             significantTotal: 0
           },
+
           commitments: [],
+
           startedAt: null,
           completedAt: null
         };
@@ -135,11 +96,8 @@ function createDefaultGameState() {
     },
 
     currentScreenId: "welcomeScreen",
-
     currentAreaId: null,
-
     currentScenarioIndex: 0,
-
     currentTaskStep: "aspect",
 
     selectedAnswers: {
@@ -164,13 +122,10 @@ function createDefaultGameState() {
     commitments: [],
 
     soundEnabled: true,
-
     finalSubmitted: false,
 
     startedAt: null,
-
     completedAt: null,
-
     lastSavedAt: null
   };
 }
