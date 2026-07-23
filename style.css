@@ -3079,3 +3079,830 @@ label:has(input:focus-visible) {
     border: 1px solid #cccccc;
   }
 }
+
+
+/* =========================================================
+   36. INTERACTIVE FACTORY EXPLORATION
+   Matching the movement-enabled campus in index.html
+========================================================= */
+
+.factory-navigation-heading {
+  align-items: center;
+}
+
+.player-mini-avatar {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      145deg,
+      var(--color-primary-light),
+      #c7ebd8
+    );
+  box-shadow: inset 0 0 0 1px rgba(15, 107, 69, 0.12);
+  font-size: 1.35rem;
+}
+
+.factory-control-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.factory-control-tip {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text-soft);
+  box-shadow: var(--shadow-xs);
+  font-size: 0.84rem;
+}
+
+.factory-control-tip > span:first-child {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  background: var(--color-primary-light);
+  font-size: 1.1rem;
+}
+
+.factory-control-tip strong {
+  color: var(--color-primary-dark);
+}
+
+.factory-map-wrapper {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 680px;
+  overflow: hidden;
+  border: 1px solid #bcd4c8;
+  border-radius: 28px;
+  background:
+    linear-gradient(
+      155deg,
+      #dcefe6 0%,
+      #eef7f2 48%,
+      #d9eadf 100%
+    );
+  box-shadow: var(--shadow-lg);
+  outline: none;
+  touch-action: none;
+  user-select: none;
+}
+
+.factory-map-wrapper:focus-visible {
+  box-shadow:
+    0 0 0 5px rgba(15, 107, 69, 0.18),
+    var(--shadow-lg);
+}
+
+.factory-map-image {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.factory-map-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 14% 82%, rgba(72, 155, 96, 0.22), transparent 16%),
+    radial-gradient(circle at 90% 78%, rgba(76, 158, 92, 0.22), transparent 18%),
+    linear-gradient(180deg, #dff1e7 0%, #edf7f2 58%, #d7e9dd 100%);
+}
+
+.map-road {
+  position: absolute;
+  border: 5px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #8b9992 0 26px,
+      #8b9992 26px 38px,
+      #f4d76a 38px 48px,
+      #8b9992 48px 74px
+    );
+  box-shadow:
+    0 0 0 2px rgba(56, 76, 66, 0.12),
+    inset 0 2px 5px rgba(0, 0, 0, 0.12);
+  opacity: 0.82;
+}
+
+.map-road-horizontal {
+  left: 4%;
+  right: 4%;
+  top: 54%;
+  height: 55px;
+}
+
+.map-road-vertical {
+  top: 7%;
+  bottom: 7%;
+  left: 53%;
+  width: 55px;
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+.map-zone {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(15, 107, 69, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(229, 243, 236, 0.9)
+    );
+  box-shadow: 0 12px 28px rgba(23, 77, 50, 0.1);
+  color: rgba(8, 76, 51, 0.58);
+  font-size: clamp(0.8rem, 1.5vw, 1.05rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.production-map-zone {
+  left: 5%;
+  top: 7%;
+  width: 49%;
+  height: 35%;
+}
+
+.support-map-zone {
+  right: 4%;
+  top: 7%;
+  width: 38%;
+  height: 35%;
+}
+
+.utility-map-zone {
+  left: 27%;
+  bottom: 7%;
+  width: 38%;
+  height: 25%;
+}
+
+.outdoor-map-zone {
+  right: 4%;
+  bottom: 7%;
+  width: 28%;
+  height: 25%;
+}
+
+.factory-player-avatar {
+  position: absolute;
+  z-index: 30;
+  width: 64px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  transition:
+    left 0.08s linear,
+    top 0.08s linear,
+    filter var(--transition-fast);
+  pointer-events: none;
+  will-change: left, top;
+}
+
+.player-character {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 3px solid rgba(255, 255, 255, 0.96);
+  border-radius: 50%;
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #dff4e8
+    );
+  box-shadow:
+    0 8px 18px rgba(9, 72, 46, 0.24),
+    inset 0 0 0 2px rgba(15, 107, 69, 0.08);
+  font-size: 2.1rem;
+  animation: playerIdle 1.8s ease-in-out infinite;
+}
+
+.player-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  z-index: 1;
+  width: 42px;
+  height: 13px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgba(12, 56, 38, 0.22);
+  filter: blur(2px);
+}
+
+.player-name-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  z-index: 3;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-dark);
+  color: var(--color-white);
+  box-shadow: var(--shadow-xs);
+  font-size: 0.64rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.factory-player-avatar.is-moving .player-character {
+  animation: playerWalk 0.3s ease-in-out infinite alternate;
+}
+
+.factory-player-avatar.facing-left .player-character {
+  transform: scaleX(-1);
+}
+
+@keyframes playerIdle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes playerWalk {
+  from {
+    transform: translateY(0) rotate(-3deg);
+  }
+
+  to {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+
+.area-hotspot {
+  position: absolute;
+  z-index: 20;
+  min-width: 92px;
+  min-height: 88px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  transform: translate(-50%, -50%);
+  padding: 9px 10px;
+  border: 2px solid rgba(15, 107, 69, 0.28);
+  border-radius: 18px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(235, 248, 241, 0.94)
+    );
+  color: var(--color-primary-dark);
+  box-shadow:
+    0 8px 18px rgba(17, 78, 50, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.area-hotspot:hover,
+.area-hotspot:focus-visible {
+  z-index: 25;
+  transform: translate(-50%, -50%) scale(1.07);
+  border-color: var(--color-primary);
+  background: var(--color-white);
+  box-shadow:
+    0 14px 28px rgba(15, 107, 69, 0.23),
+    0 0 0 5px rgba(15, 107, 69, 0.1);
+  outline: none;
+}
+
+.area-hotspot.active-hotspot,
+.area-hotspot[data-nearby="true"] {
+  z-index: 26;
+  transform: translate(-50%, -50%) scale(1.1);
+  border-color: var(--color-accent);
+  background:
+    linear-gradient(
+      145deg,
+      #fffdf4,
+      var(--color-accent-light)
+    );
+  box-shadow:
+    0 0 0 6px rgba(217, 162, 39, 0.2),
+    0 16px 30px rgba(18, 73, 48, 0.22);
+  animation: hotspotPulse 1.15s ease-in-out infinite;
+}
+
+.area-hotspot.completed,
+.area-hotspot[data-completed="true"] {
+  border-color: var(--color-success);
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      var(--color-success-light)
+    );
+}
+
+.area-hotspot.completed::after,
+.area-hotspot[data-completed="true"]::after {
+  content: "✓";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--color-white);
+  border-radius: 50%;
+  background: var(--color-success);
+  color: var(--color-white);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+@keyframes hotspotPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 5px rgba(217, 162, 39, 0.17),
+      0 13px 25px rgba(18, 73, 48, 0.2);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(217, 162, 39, 0.06),
+      0 16px 30px rgba(18, 73, 48, 0.24);
+  }
+}
+
+.hotspot-icon {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.hotspot-label {
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.hotspot-status {
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-soft);
+  color: var(--color-text-muted);
+  font-size: 0.61rem;
+  font-weight: 800;
+}
+
+.area-interaction-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 45;
+  width: min(calc(100% - 32px), 520px);
+  transform: translateX(-50%);
+  padding: 13px 17px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 16px;
+  background: rgba(8, 76, 51, 0.94);
+  color: var(--color-white);
+  box-shadow: 0 14px 36px rgba(4, 39, 25, 0.3);
+  text-align: center;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
+}
+
+.factory-map-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.factory-location-status {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-xs);
+  color: var(--color-text-soft);
+}
+
+.factory-location-status > span:first-child {
+  font-size: 1.35rem;
+}
+
+.mobile-movement-controls {
+  display: none;
+  grid-template-columns: repeat(3, 54px);
+  grid-template-rows: repeat(2, 52px);
+  gap: 7px;
+  justify-content: center;
+  align-items: center;
+}
+
+.movement-button {
+  width: 54px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-border-dark);
+  border-radius: 14px;
+  background: var(--color-white);
+  color: var(--color-primary-dark);
+  box-shadow: var(--shadow-xs);
+  font-size: 1.25rem;
+  font-weight: 900;
+  touch-action: manipulation;
+  transition:
+    transform 0.1s ease,
+    background 0.1s ease;
+}
+
+.movement-button:active,
+.movement-button.pressed {
+  transform: scale(0.94);
+  background: var(--color-primary-light);
+}
+
+.movement-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.movement-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.movement-down {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.movement-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.movement-action {
+  min-width: 112px;
+  height: 52px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.area-list-panel {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow-sm);
+}
+
+.area-list-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.area-list-panel-header h3 {
+  margin-bottom: 4px;
+}
+
+.area-list-panel-header p {
+  margin-bottom: 0;
+  color: var(--color-text-soft);
+  font-size: 0.86rem;
+}
+
+
+/* =========================================================
+   37. REAL SCENARIO IMAGE PRESENTATION
+========================================================= */
+
+.generated-scenario-image {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  animation: scenarioImageReveal 0.45s ease;
+}
+
+.scenario-scene:has(.generated-scenario-image)
+.scenario-scene-placeholder {
+  display: none;
+}
+
+.scenario-scene::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  height: 32%;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(4, 49, 31, 0.12)
+    );
+}
+
+.scenario-hotspot-layer {
+  z-index: 4;
+}
+
+@keyframes scenarioImageReveal {
+  from {
+    opacity: 0;
+    transform: scale(1.025);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* =========================================================
+   38. SCRIPT-GENERATED ANSWER AND STATUS STATES
+========================================================= */
+
+.answer-option.correct-answer {
+  border-color: var(--color-success);
+  background: var(--color-success-light);
+}
+
+.answer-option.correct-answer .answer-option-indicator {
+  background: var(--color-success);
+  color: var(--color-white);
+}
+
+.answer-option.incorrect-answer {
+  border-color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+
+.answer-option.incorrect-answer .answer-option-indicator {
+  background: var(--color-danger);
+  color: var(--color-white);
+}
+
+.answer-option.selected-answer {
+  border-color: var(--color-primary);
+}
+
+.answer-option:has(input:disabled) {
+  cursor: default;
+}
+
+.calculated-impact-category.low {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.calculated-impact-category.medium {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.calculated-impact-category.high {
+  background: var(--color-danger-light);
+  color: var(--color-danger-dark);
+}
+
+.calculated-impact-category.medium span {
+  background: var(--color-warning);
+  color: #5e4300;
+}
+
+.calculated-impact-category.high span {
+  background: var(--color-danger);
+  color: var(--color-white);
+}
+
+.toast-success .toast-icon {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.toast-error .toast-icon {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
+.toast-warning .toast-icon {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.toast-info .toast-icon {
+  background: var(--color-info-light);
+  color: var(--color-info);
+}
+
+
+/* =========================================================
+   39. RESPONSIVE FACTORY EXPLORATION
+========================================================= */
+
+@media (max-width: 980px) {
+  .factory-control-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .factory-map-wrapper {
+    min-height: 620px;
+  }
+
+  .area-hotspot {
+    min-width: 78px;
+    min-height: 76px;
+    padding: 7px 8px;
+  }
+
+  .hotspot-icon {
+    font-size: 1.4rem;
+  }
+
+  .hotspot-label {
+    font-size: 0.65rem;
+  }
+
+  .factory-map-footer {
+    grid-template-columns: 1fr;
+  }
+
+  .mobile-movement-controls {
+    display: grid;
+  }
+}
+
+@media (max-width: 700px) {
+  .factory-navigation-heading {
+    align-items: stretch;
+  }
+
+  .factory-control-strip {
+    gap: 8px;
+  }
+
+  .factory-control-tip {
+    min-height: 50px;
+    padding: 9px 11px;
+  }
+
+  .factory-map-wrapper {
+    min-height: 560px;
+    border-radius: 20px;
+  }
+
+  .factory-map-image {
+    object-position: center;
+  }
+
+  .factory-player-avatar {
+    width: 54px;
+    height: 68px;
+  }
+
+  .player-character {
+    width: 50px;
+    height: 50px;
+    font-size: 1.75rem;
+  }
+
+  .area-hotspot {
+    min-width: 64px;
+    min-height: 66px;
+    border-radius: 14px;
+    padding: 5px;
+  }
+
+  .hotspot-icon {
+    font-size: 1.15rem;
+  }
+
+  .hotspot-label {
+    max-width: 66px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.56rem;
+  }
+
+  .hotspot-status {
+    font-size: 0.53rem;
+  }
+
+  .area-interaction-prompt {
+    bottom: 10px;
+    padding: 10px 12px;
+    font-size: 0.76rem;
+  }
+
+  .generated-scenario-image {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .factory-map-wrapper {
+    min-height: 500px;
+  }
+
+  .factory-control-tip:nth-child(2),
+  .factory-control-tip:nth-child(3) {
+    display: none;
+  }
+
+  .area-hotspot {
+    min-width: 56px;
+    min-height: 58px;
+  }
+
+  .hotspot-label {
+    display: none;
+  }
+
+  .factory-location-status {
+    font-size: 0.78rem;
+  }
+
+  .area-list-panel {
+    padding: 14px;
+  }
+}
+
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .factory-player-avatar,
+  .player-character,
+  .area-hotspot,
+  .generated-scenario-image {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
