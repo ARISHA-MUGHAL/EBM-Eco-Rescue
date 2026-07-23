@@ -2,282 +2,133 @@
 
 /* ============================================================
    EBM ECO RESCUE
-   ENVIRONMENTAL SCORING AND IMPACT MATRIX
+   SCORING, REWARDS AND PROGRESSION — VERSION 2.0
 
-   File: impactMatrix.js
+   Final game flow:
+   1. Spot / identify the environmental issue
+   2. Identify the environmental impact
+   3. Choose the best corrective action
 
-   Loading order:
-   1. gameData.js
-   2. impactMatrix.js
-   3. script.js
+   The consequence × occurrence rating step is no longer part of
+   the player score.
 
-   Core environmental calculation:
-
-   Environmental Impact Rating =
-   Consequence × Probability / Occurrence / Consumption
-
-   EBM rating categories:
-
-   1–4   = Low / Acceptable
-   6–9   = Medium / Tolerable
-   12–16 = High / Significant
-
-   Important compliance rule:
-
-   An environmental aspect connected with an applicable
-   compliance obligation must receive priority even when its
-   numerical impact rating is not High.
+   Compatibility aliases are retained temporarily so the existing
+   script.js can continue loading while the remaining files are
+   updated one by one.
 ============================================================ */
 
 
 /* ============================================================
-   1. ENVIRONMENTAL MATRIX CONFIGURATION
+   1. SCORING CONFIGURATION
 ============================================================ */
 
 const EBM_IMPACT_MATRIX_CONFIG = Object.freeze({
-  minimumRatingValue: 1,
-
-  maximumRatingValue: 4,
-
-  minimumMatrixScore: 1,
-
-  maximumMatrixScore: 16,
-
-  ratingFormula:
-    "Consequence × Probability / Occurrence / Consumption",
-
-  categoryThresholds: Object.freeze({
-    low: Object.freeze({
-      minimum: 1,
-      maximum: 4,
-      level: "Low",
-      classification: "Acceptable",
-      priority: 1,
-      colorClass: "low",
-      badgeClass: "impact-low",
-      action:
-        "Maintain the current controls and continue routine monitoring."
-    }),
-
-    medium: Object.freeze({
-      minimum: 6,
-      maximum: 9,
-      level: "Medium",
-      classification: "Tolerable",
-      priority: 2,
-      colorClass: "medium",
-      badgeClass: "impact-medium",
-      action:
-        "Action is required within a reasonable timeframe to reduce the environmental impact."
-    }),
-
-    high: Object.freeze({
-      minimum: 12,
-      maximum: 16,
-      level: "High",
-      classification: "Significant",
-      priority: 3,
-      colorClass: "high",
-      badgeClass: "impact-high",
-      action:
-        "Prompt action is required to reduce the environmental impact to an acceptable level."
-    })
-  }),
+  version: "2.0.0",
 
   scoring: Object.freeze({
-    correctAspect: 20,
-    correctImpact: 20,
-    correctConsequence: 10,
-    correctOccurrence: 10,
-    correctOverallRating: 10,
-    correctControl: 20,
+    correctIssue: 30,
+    correctAspect: 30,
+
+    correctImpact: 30,
+
+    correctAction: 30,
+    correctControl: 30,
+
     completionBonus: 10,
 
     maximumScenarioScore: 100,
 
-    partialRatingTolerance: 1
+    streakThreshold: 3,
+    streakBonus: 10,
+    maximumStreakBonusPerScenario: 10
+  }),
+
+  gameModes: Object.freeze({
+    normal: Object.freeze({
+      id: "normal",
+      timed: false,
+      timeLimitSeconds: null
+    }),
+
+    timed: Object.freeze({
+      id: "timed",
+      timed: true,
+      timeLimitSeconds: 480
+    })
   }),
 
   finalResultLevels: Object.freeze([
     Object.freeze({
       minimum: 0,
-      maximum: 49,
-      level: "Eco Learner",
+      maximum: 39,
+      level: "Eco Beginner",
+      title: "Eco Beginner",
       icon: "🌱",
-      className: "eco-learner",
+      className: "eco-beginner",
       description:
-        "You have started your environmental awareness journey. Review the learning messages and replay the missions to strengthen your understanding."
+        "You have started your environmental rescue journey."
     }),
 
     Object.freeze({
-      minimum: 50,
-      maximum: 69,
-      level: "Eco Supporter",
-      icon: "🌿",
-      className: "eco-supporter",
+      minimum: 40,
+      maximum: 54,
+      level: "Eco Observer",
+      title: "Eco Observer",
+      icon: "👀",
+      className: "eco-observer",
       description:
-        "You understand several important environmental practices. Continue improving how you identify impacts and select controls."
+        "You can spot several environmental issues."
+    }),
+
+    Object.freeze({
+      minimum: 55,
+      maximum: 69,
+      level: "Eco Protector",
+      title: "Eco Protector",
+      icon: "🛡️",
+      className: "eco-protector",
+      description:
+        "You make practical choices that protect resources."
     }),
 
     Object.freeze({
       minimum: 70,
       maximum: 84,
       level: "Eco Champion",
-      icon: "🌳",
+      title: "Eco Champion",
+      icon: "🏅",
       className: "eco-champion",
       description:
-        "You demonstrated strong environmental awareness and selected effective controls in most situations."
+        "You consistently identify and control environmental impacts."
     }),
 
     Object.freeze({
       minimum: 85,
-      maximum: 100,
+      maximum: 94,
       level: "Eco Guardian",
+      title: "Eco Guardian",
       icon: "🌍",
       className: "eco-guardian",
       description:
-        "You demonstrated excellent understanding of environmental aspects, impacts, significance and controls."
+        "You demonstrate excellent environmental awareness."
+    }),
+
+    Object.freeze({
+      minimum: 95,
+      maximum: 100,
+      level: "Nature Rescue Hero",
+      title: "Nature Rescue Hero",
+      icon: "🏆",
+      className: "nature-rescue-hero",
+      description:
+        "You rescued the Eco Campus with outstanding environmental decisions."
     })
   ])
 });
 
 
 /* ============================================================
-   2. VALID MATRIX VALUES
-
-   A 4 × 4 matrix produces only these values:
-
-   1, 2, 3, 4, 6, 8, 9, 12 and 16
-
-   Values such as 5, 7, 10, 11, 13, 14 and 15 are not produced
-   by multiplying whole-number ratings from 1 to 4.
-============================================================ */
-
-const EBM_VALID_MATRIX_SCORES = Object.freeze([
-  1,
-  2,
-  3,
-  4,
-  6,
-  8,
-  9,
-  12,
-  16
-]);
-
-
-/* ============================================================
-   3. CONSEQUENCE DEFINITIONS
-============================================================ */
-
-const EBM_CONSEQUENCE_CRITERIA = Object.freeze([
-  Object.freeze({
-    value: 1,
-    name: "Minor",
-    shortName: "Minor",
-    description:
-      "Minor or negligible effect on people, the environment or natural resources.",
-    examples: Object.freeze([
-      "Minor amount of resource wastage",
-      "Small isolated waste issue",
-      "Negligible short-term environmental effect",
-      "Minor seepage without wider contamination"
-    ])
-  }),
-
-  Object.freeze({
-    value: 2,
-    name: "Moderate",
-    shortName: "Moderate",
-    description:
-      "Moderate short-term environmental effect or medium resource wastage.",
-    examples: Object.freeze([
-      "Moderate threat or harm to the environment",
-      "Medium amount of water or energy wastage",
-      "Short-term environmental disturbance",
-      "Moderate spill contained within a limited area"
-    ])
-  }),
-
-  Object.freeze({
-    value: 3,
-    name: "Major",
-    shortName: "Major",
-    description:
-      "Major, significant or long-term environmental effect.",
-    examples: Object.freeze([
-      "High amount of resource wastage",
-      "Major environmental contamination potential",
-      "Significant long-term environmental impact",
-      "Major chemical or wastewater spill"
-    ])
-  }),
-
-  Object.freeze({
-    value: 4,
-    name: "Severe",
-    shortName: "Severe",
-    description:
-      "Severe, widespread, life-threatening or potentially irreversible environmental effect.",
-    examples: Object.freeze([
-      "Severe environmental harm",
-      "Widespread land or groundwater contamination",
-      "Large uncontrolled environmental release",
-      "Major long-term impact on people or ecosystems"
-    ])
-  })
-]);
-
-
-/* ============================================================
-   4. OCCURRENCE / CONSUMPTION DEFINITIONS
-============================================================ */
-
-const EBM_OCCURRENCE_CRITERIA = Object.freeze([
-  Object.freeze({
-    value: 1,
-    name: "Rare",
-    shortName: "Unlikely / Rare",
-    description:
-      "The event or uncontrolled release is unlikely or occurs only a few times in a year.",
-    frequencyHint:
-      "Few times in a year"
-  }),
-
-  Object.freeze({
-    value: 2,
-    name: "Sometimes",
-    shortName: "Possible / Sometimes",
-    description:
-      "The event, release or resource use occurs periodically or a few times in a week.",
-    frequencyHint:
-      "Few times in a week"
-  }),
-
-  Object.freeze({
-    value: 3,
-    name: "Intermittent",
-    shortName: "Likely / Intermittent",
-    description:
-      "The event, release or resource use occurs several times in a day.",
-    frequencyHint:
-      "Several times in a day"
-  }),
-
-  Object.freeze({
-    value: 4,
-    name: "Continuous",
-    shortName: "Very Likely / Continuous",
-    description:
-      "The release or resource consumption continues throughout a shift or day.",
-    frequencyHint:
-      "Continuous during a shift or day"
-  })
-]);
-
-
-/* ============================================================
-   5. ENVIRONMENTAL METRIC CONFIGURATION
+   2. METRIC CONFIGURATION
 ============================================================ */
 
 const EBM_METRIC_CONFIG = Object.freeze({
@@ -286,9 +137,7 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "Water Efficiency",
     icon: "💧",
     scoreElementId: "waterMetricScore",
-    barElementId: "waterMetricBar",
-    description:
-      "Leakage, overflow, controlled cleaning, effluent and reuse."
+    barElementId: "waterMetricBar"
   }),
 
   energy: Object.freeze({
@@ -296,9 +145,7 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "Energy Efficiency",
     icon: "⚡",
     scoreElementId: "energyMetricScore",
-    barElementId: "energyMetricBar",
-    description:
-      "Electricity, compressed air, steam, fuel and idle equipment."
+    barElementId: "energyMetricBar"
   }),
 
   waste: Object.freeze({
@@ -306,9 +153,7 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "Waste Management",
     icon: "♻️",
     scoreElementId: "wasteMetricScore",
-    barElementId: "wasteMetricBar",
-    description:
-      "Waste prevention, segregation, reuse, recycling and disposal."
+    barElementId: "wasteMetricBar"
   }),
 
   ghg: Object.freeze({
@@ -316,9 +161,7 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "GHG Awareness",
     icon: "☁️",
     scoreElementId: "ghgMetricScore",
-    barElementId: "ghgMetricBar",
-    description:
-      "Direct and indirect greenhouse-gas emissions."
+    barElementId: "ghgMetricBar"
   }),
 
   paper: Object.freeze({
@@ -326,9 +169,7 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "Paper Reduction",
     icon: "📄",
     scoreElementId: "paperMetricScore",
-    barElementId: "paperMetricBar",
-    description:
-      "Digital review, double-sided printing and responsible paper use."
+    barElementId: "paperMetricBar"
   }),
 
   nature: Object.freeze({
@@ -336,37 +177,59 @@ const EBM_METRIC_CONFIG = Object.freeze({
     name: "Nature Protection",
     icon: "🌳",
     scoreElementId: "natureMetricScore",
-    barElementId: "natureMetricBar",
-    description:
-      "Protection of land, water, trees, soil, flora and fauna."
+    barElementId: "natureMetricBar"
   })
 });
 
 
 /* ============================================================
-   6. BASIC VALIDATION HELPERS
+   3. COLLECTIBLE CONFIGURATION
 ============================================================ */
 
-/**
- * Checks whether a value is a finite number.
- *
- * @param {*} value
- * @returns {boolean}
- */
-function isFiniteEBMNumber(value) {
-  return Number.isFinite(Number(value));
-}
+const EBM_COLLECTIBLE_CONFIG = Object.freeze({
+  waterDrop: Object.freeze({
+    id: "waterDrop",
+    name: "Water Drop",
+    pluralName: "Water Drops",
+    icon: "💧",
+    metric: "water"
+  }),
+
+  greenLeaf: Object.freeze({
+    id: "greenLeaf",
+    name: "Green Leaf",
+    pluralName: "Green Leaves",
+    icon: "🍃",
+    metric: "nature"
+  }),
+
+  recyclingToken: Object.freeze({
+    id: "recyclingToken",
+    name: "Recycling Token",
+    pluralName: "Recycling Tokens",
+    icon: "♻️",
+    metric: "waste"
+  }),
+
+  energySpark: Object.freeze({
+    id: "energySpark",
+    name: "Energy Spark",
+    pluralName: "Energy Sparks",
+    icon: "⚡",
+    metric: "energy"
+  })
+});
 
 
-/**
- * Converts a value to a number and restricts it to a range.
- *
- * @param {*} value
- * @param {number} minimum
- * @param {number} maximum
- * @returns {number}
- */
-function clampEBMNumber(value, minimum, maximum) {
+/* ============================================================
+   4. BASIC HELPERS
+============================================================ */
+
+function clampEBMNumber(
+  value,
+  minimum,
+  maximum
+) {
   const numericValue = Number(value);
 
   if (!Number.isFinite(numericValue)) {
@@ -375,512 +238,23 @@ function clampEBMNumber(value, minimum, maximum) {
 
   return Math.min(
     maximum,
-    Math.max(minimum, numericValue)
+    Math.max(
+      minimum,
+      numericValue
+    )
   );
 }
 
-
-/**
- * Converts a value to a percentage between 0 and 100.
- *
- * @param {*} value
- * @returns {number}
- */
 function normalizeEBMPercentage(value) {
   return Math.round(
-    clampEBMNumber(value, 0, 100)
+    clampEBMNumber(
+      value,
+      0,
+      100
+    )
   );
 }
 
-
-/**
- * Confirms that an impact or occurrence rating is an integer
- * from 1 to 4.
- *
- * @param {*} value
- * @returns {boolean}
- */
-function isValidEBMRatingValue(value) {
-  const numericValue = Number(value);
-
-  return (
-    Number.isInteger(numericValue) &&
-    numericValue >=
-      EBM_IMPACT_MATRIX_CONFIG.minimumRatingValue &&
-    numericValue <=
-      EBM_IMPACT_MATRIX_CONFIG.maximumRatingValue
-  );
-}
-
-
-/**
- * Throws an informative error if an impact matrix input is not
- * valid.
- *
- * @param {*} value
- * @param {string} fieldName
- */
-function assertValidEBMRatingValue(value, fieldName) {
-  if (!isValidEBMRatingValue(value)) {
-    throw new RangeError(
-      `${fieldName} must be a whole number from 1 to 4. Received: ${value}`
-    );
-  }
-}
-
-
-/* ============================================================
-   7. CORE IMPACT RATING CALCULATION
-============================================================ */
-
-/**
- * Calculates the environmental impact rating.
- *
- * Formula:
- * consequence × occurrence
- *
- * @param {number} consequence
- * @param {number} occurrence
- * @returns {number}
- */
-function calculateEnvironmentalImpactRating(
-  consequence,
-  occurrence
-) {
-  assertValidEBMRatingValue(
-    consequence,
-    "Consequence"
-  );
-
-  assertValidEBMRatingValue(
-    occurrence,
-    "Occurrence"
-  );
-
-  return Number(consequence) * Number(occurrence);
-}
-
-
-/**
- * Safe calculation that does not throw an error.
- *
- * @param {*} consequence
- * @param {*} occurrence
- * @returns {{
- *   valid: boolean,
- *   score: number|null,
- *   error: string|null
- * }}
- */
-function tryCalculateEnvironmentalImpactRating(
-  consequence,
-  occurrence
-) {
-  try {
-    const score =
-      calculateEnvironmentalImpactRating(
-        consequence,
-        occurrence
-      );
-
-    return {
-      valid: true,
-      score,
-      error: null
-    };
-  } catch (error) {
-    return {
-      valid: false,
-      score: null,
-      error: error.message
-    };
-  }
-}
-
-
-/* ============================================================
-   8. IMPACT CATEGORY CALCULATION
-============================================================ */
-
-/**
- * Returns the base impact category from the numerical rating.
- *
- * @param {number} score
- * @returns {{
- *   minimum: number,
- *   maximum: number,
- *   level: string,
- *   classification: string,
- *   priority: number,
- *   colorClass: string,
- *   badgeClass: string,
- *   action: string
- * }}
- */
-function getEnvironmentalImpactCategory(score) {
-  const numericScore = Number(score);
-
-  if (
-    !Number.isFinite(numericScore) ||
-    numericScore <
-      EBM_IMPACT_MATRIX_CONFIG.minimumMatrixScore ||
-    numericScore >
-      EBM_IMPACT_MATRIX_CONFIG.maximumMatrixScore
-  ) {
-    throw new RangeError(
-      `Impact score must be between 1 and 16. Received: ${score}`
-    );
-  }
-
-  if (numericScore >= 12) {
-    return {
-      ...EBM_IMPACT_MATRIX_CONFIG.categoryThresholds.high
-    };
-  }
-
-  if (numericScore >= 6) {
-    return {
-      ...EBM_IMPACT_MATRIX_CONFIG.categoryThresholds.medium
-    };
-  }
-
-  return {
-    ...EBM_IMPACT_MATRIX_CONFIG.categoryThresholds.low
-  };
-}
-
-
-/**
- * Returns a category safely without throwing.
- *
- * @param {*} score
- * @returns {object|null}
- */
-function tryGetEnvironmentalImpactCategory(score) {
-  try {
-    return getEnvironmentalImpactCategory(score);
-  } catch (error) {
-    console.error(
-      "Unable to determine impact category:",
-      error
-    );
-
-    return null;
-  }
-}
-
-
-/* ============================================================
-   9. COMPLIANCE-OBLIGATION OVERRIDE
-============================================================ */
-
-/**
- * Applies the EBM compliance significance rule.
- *
- * The numerical category remains visible, but compliance-related
- * scenarios receive significant priority.
- *
- * Example:
- * Numerical score: 8
- * Base category: Medium
- * Final management priority: Significant – Compliance
- *
- * @param {number} score
- * @param {boolean} hasComplianceObligation
- * @returns {object}
- */
-function evaluateEnvironmentalSignificance(
-  score,
-  hasComplianceObligation = false
-) {
-  const baseCategory =
-    getEnvironmentalImpactCategory(score);
-
-  const complianceRequired =
-    hasComplianceObligation === true;
-
-  if (!complianceRequired) {
-    return {
-      numericalScore: Number(score),
-
-      baseLevel: baseCategory.level,
-
-      baseClassification:
-        baseCategory.classification,
-
-      finalLevel: baseCategory.level,
-
-      finalClassification:
-        baseCategory.classification,
-
-      priority: baseCategory.priority,
-
-      isSignificant:
-        baseCategory.level === "High",
-
-      isComplianceSignificant: false,
-
-      colorClass: baseCategory.colorClass,
-
-      badgeClass: baseCategory.badgeClass,
-
-      action: baseCategory.action,
-
-      complianceMessage: null
-    };
-  }
-
-  return {
-    numericalScore: Number(score),
-
-    baseLevel: baseCategory.level,
-
-    baseClassification:
-      baseCategory.classification,
-
-    finalLevel:
-      baseCategory.level === "High"
-        ? "High"
-        : "Compliance Priority",
-
-    finalClassification: "Significant",
-
-    priority: 3,
-
-    isSignificant: true,
-
-    isComplianceSignificant: true,
-
-    colorClass: "high",
-
-    badgeClass: "impact-compliance",
-
-    action:
-      "This aspect must be addressed through adequate controls because an applicable compliance obligation has been identified.",
-
-    complianceMessage:
-      "Compliance obligation identified. Treat this aspect as significant regardless of its base numerical rating."
-  };
-}
-
-
-/* ============================================================
-   10. COMPLETE MATRIX EVALUATION
-============================================================ */
-
-/**
- * Evaluates consequence, occurrence and compliance together.
- *
- * @param {object} input
- * @param {number} input.consequence
- * @param {number} input.occurrence
- * @param {boolean} [input.complianceObligation]
- * @returns {object}
- */
-function evaluateEnvironmentalImpact(input) {
-  if (!input || typeof input !== "object") {
-    throw new TypeError(
-      "Environmental impact evaluation requires an input object."
-    );
-  }
-
-  const consequence = Number(
-    input.consequence
-  );
-
-  const occurrence = Number(
-    input.occurrence
-  );
-
-  const score =
-    calculateEnvironmentalImpactRating(
-      consequence,
-      occurrence
-    );
-
-  const consequenceDetails =
-    EBM_CONSEQUENCE_CRITERIA.find(
-      (item) => item.value === consequence
-    );
-
-  const occurrenceDetails =
-    EBM_OCCURRENCE_CRITERIA.find(
-      (item) => item.value === occurrence
-    );
-
-  const significance =
-    evaluateEnvironmentalSignificance(
-      score,
-      input.complianceObligation === true
-    );
-
-  return {
-    consequence,
-    occurrence,
-    score,
-
-    formula:
-      `${consequence} × ${occurrence} = ${score}`,
-
-    consequenceDetails:
-      consequenceDetails || null,
-
-    occurrenceDetails:
-      occurrenceDetails || null,
-
-    ...significance
-  };
-}
-
-
-/* ============================================================
-   11. PLAYER RATING COMPARISON
-============================================================ */
-
-/**
- * Compares the player's consequence and occurrence selections
- * with the expected scenario rating.
- *
- * @param {object} input
- * @param {number} input.playerConsequence
- * @param {number} input.playerOccurrence
- * @param {number} input.expectedConsequence
- * @param {number} input.expectedOccurrence
- * @returns {object}
- */
-function comparePlayerImpactRating(input) {
-  if (!input || typeof input !== "object") {
-    throw new TypeError(
-      "Player rating comparison requires an input object."
-    );
-  }
-
-  const playerConsequence =
-    Number(input.playerConsequence);
-
-  const playerOccurrence =
-    Number(input.playerOccurrence);
-
-  const expectedConsequence =
-    Number(input.expectedConsequence);
-
-  const expectedOccurrence =
-    Number(input.expectedOccurrence);
-
-  assertValidEBMRatingValue(
-    playerConsequence,
-    "Player consequence"
-  );
-
-  assertValidEBMRatingValue(
-    playerOccurrence,
-    "Player occurrence"
-  );
-
-  assertValidEBMRatingValue(
-    expectedConsequence,
-    "Expected consequence"
-  );
-
-  assertValidEBMRatingValue(
-    expectedOccurrence,
-    "Expected occurrence"
-  );
-
-  const playerScore =
-    calculateEnvironmentalImpactRating(
-      playerConsequence,
-      playerOccurrence
-    );
-
-  const expectedScore =
-    calculateEnvironmentalImpactRating(
-      expectedConsequence,
-      expectedOccurrence
-    );
-
-  const playerCategory =
-    getEnvironmentalImpactCategory(
-      playerScore
-    );
-
-  const expectedCategory =
-    getEnvironmentalImpactCategory(
-      expectedScore
-    );
-
-  const consequenceCorrect =
-    playerConsequence === expectedConsequence;
-
-  const occurrenceCorrect =
-    playerOccurrence === expectedOccurrence;
-
-  const exactScoreCorrect =
-    playerScore === expectedScore;
-
-  const categoryCorrect =
-    playerCategory.level ===
-    expectedCategory.level;
-
-  const scoreDifference =
-    Math.abs(playerScore - expectedScore);
-
-  let accuracyLevel = "Incorrect";
-
-  if (
-    consequenceCorrect &&
-    occurrenceCorrect
-  ) {
-    accuracyLevel = "Exact";
-  } else if (exactScoreCorrect) {
-    accuracyLevel = "Equivalent Score";
-  } else if (categoryCorrect) {
-    accuracyLevel = "Correct Category";
-  } else if (
-    scoreDifference <=
-    EBM_IMPACT_MATRIX_CONFIG.scoring
-      .partialRatingTolerance
-  ) {
-    accuracyLevel = "Close";
-  }
-
-  return {
-    playerConsequence,
-    playerOccurrence,
-    playerScore,
-    playerCategory,
-
-    expectedConsequence,
-    expectedOccurrence,
-    expectedScore,
-    expectedCategory,
-
-    consequenceCorrect,
-    occurrenceCorrect,
-    exactScoreCorrect,
-    categoryCorrect,
-    scoreDifference,
-    accuracyLevel,
-
-    fullyCorrect:
-      consequenceCorrect &&
-      occurrenceCorrect
-  };
-}
-
-
-/* ============================================================
-   12. NORMALIZED TEXT COMPARISON
-
-   Used to compare player selections with correct options.
-============================================================ */
-
-/**
- * Normalizes text for reliable option comparison.
- *
- * @param {*} value
- * @returns {string}
- */
 function normalizeEBMAnswerText(value) {
   return String(value ?? "")
     .trim()
@@ -888,375 +262,445 @@ function normalizeEBMAnswerText(value) {
     .toLowerCase();
 }
 
-
-/**
- * Checks whether two answer strings match.
- *
- * @param {*} selectedAnswer
- * @param {*} correctAnswer
- * @returns {boolean}
- */
 function isCorrectEBMAnswer(
   selectedAnswer,
   correctAnswer
 ) {
   return (
-    normalizeEBMAnswerText(selectedAnswer) ===
-    normalizeEBMAnswerText(correctAnswer)
+    normalizeEBMAnswerText(
+      selectedAnswer
+    ) ===
+    normalizeEBMAnswerText(
+      correctAnswer
+    )
   );
 }
 
-
-/* ============================================================
-   13. SCENARIO SCORE CALCULATION
-============================================================ */
-
-/**
- * Calculates the player's score for one scenario.
- *
- * Maximum:
- *
- * Aspect                  20
- * Impact                  20
- * Consequence             10
- * Occurrence              10
- * Overall rating/category 10
- * Control                 20
- * Completion bonus        10
- * --------------------------------
- * Total                  100
- *
- * @param {object} input
- * @param {*} input.selectedAspect
- * @param {*} input.correctAspect
- * @param {*} input.selectedImpact
- * @param {*} input.correctImpact
- * @param {number} input.playerConsequence
- * @param {number} input.playerOccurrence
- * @param {number} input.expectedConsequence
- * @param {number} input.expectedOccurrence
- * @param {*} input.selectedControl
- * @param {*} input.correctControl
- * @param {boolean} [input.completed]
- * @returns {object}
- */
-function calculateScenarioScore(input) {
-  if (!input || typeof input !== "object") {
-    throw new TypeError(
-      "Scenario scoring requires an input object."
-    );
+function cloneEBMObject(value) {
+  if (
+    typeof structuredClone ===
+    "function"
+  ) {
+    return structuredClone(value);
   }
 
-  const scoreConfig =
-    EBM_IMPACT_MATRIX_CONFIG.scoring;
-
-  const aspectCorrect =
-    isCorrectEBMAnswer(
-      input.selectedAspect,
-      input.correctAspect
-    );
-
-  const impactCorrect =
-    isCorrectEBMAnswer(
-      input.selectedImpact,
-      input.correctImpact
-    );
-
-  const controlCorrect =
-    isCorrectEBMAnswer(
-      input.selectedControl,
-      input.correctControl
-    );
-
-  const ratingComparison =
-    comparePlayerImpactRating({
-      playerConsequence:
-        input.playerConsequence,
-
-      playerOccurrence:
-        input.playerOccurrence,
-
-      expectedConsequence:
-        input.expectedConsequence,
-
-      expectedOccurrence:
-        input.expectedOccurrence
-    });
-
-  const breakdown = {
-    aspect:
-      aspectCorrect
-        ? scoreConfig.correctAspect
-        : 0,
-
-    impact:
-      impactCorrect
-        ? scoreConfig.correctImpact
-        : 0,
-
-    consequence:
-      ratingComparison.consequenceCorrect
-        ? scoreConfig.correctConsequence
-        : 0,
-
-    occurrence:
-      ratingComparison.occurrenceCorrect
-        ? scoreConfig.correctOccurrence
-        : 0,
-
-    overallRating:
-      ratingComparison.categoryCorrect
-        ? scoreConfig.correctOverallRating
-        : 0,
-
-    control:
-      controlCorrect
-        ? scoreConfig.correctControl
-        : 0,
-
-    completionBonus:
-      input.completed !== false
-        ? scoreConfig.completionBonus
-        : 0
-  };
-
-  const rawScore = Object.values(
-    breakdown
-  ).reduce(
-    (total, value) => total + value,
-    0
+  return JSON.parse(
+    JSON.stringify(value)
   );
-
-  const totalScore = clampEBMNumber(
-    rawScore,
-    0,
-    scoreConfig.maximumScenarioScore
-  );
-
-  const percentage =
-    normalizeEBMPercentage(
-      (
-        totalScore /
-        scoreConfig.maximumScenarioScore
-      ) * 100
-    );
-
-  const correctDecisionCount = [
-    aspectCorrect,
-    impactCorrect,
-    ratingComparison.consequenceCorrect,
-    ratingComparison.occurrenceCorrect,
-    ratingComparison.categoryCorrect,
-    controlCorrect
-  ].filter(Boolean).length;
-
-  return {
-    totalScore,
-    maximumScore:
-      scoreConfig.maximumScenarioScore,
-
-    percentage,
-
-    breakdown,
-
-    answers: {
-      aspectCorrect,
-      impactCorrect,
-      controlCorrect
-    },
-
-    rating: ratingComparison,
-
-    correctDecisionCount,
-
-    totalDecisionCount: 6,
-
-    allCoreAnswersCorrect:
-      aspectCorrect &&
-      impactCorrect &&
-      ratingComparison.fullyCorrect &&
-      controlCorrect
-  };
 }
 
 
 /* ============================================================
-   14. SIMPLE STEP-BY-STEP SCORE FUNCTIONS
-
-   These functions can be used while the player progresses
-   through Aspect, Impact, Rating and Control.
+   5. SIMPLE STEP SCORING
 ============================================================ */
 
-/**
- * Scores the aspect step.
- *
- * @param {*} selected
- * @param {*} correct
- * @returns {object}
+function scoreIssueSelection(
+  selected,
+  correct
+) {
+  const isCorrect =
+    isCorrectEBMAnswer(
+      selected,
+      correct
+    );
+
+  return {
+    isCorrect,
+
+    points:
+      isCorrect
+        ? EBM_IMPACT_MATRIX_CONFIG
+            .scoring.correctIssue
+        : 0,
+
+    maximumPoints:
+      EBM_IMPACT_MATRIX_CONFIG
+        .scoring.correctIssue
+  };
+}
+
+/*
+ * Compatibility name used by the current script.js.
  */
 function scoreAspectSelection(
   selected,
   correct
 ) {
-  const isCorrect =
-    isCorrectEBMAnswer(selected, correct);
-
-  return {
-    isCorrect,
-
-    points:
-      isCorrect
-        ? EBM_IMPACT_MATRIX_CONFIG.scoring
-            .correctAspect
-        : 0,
-
-    maximumPoints:
-      EBM_IMPACT_MATRIX_CONFIG.scoring
-        .correctAspect
-  };
+  return scoreIssueSelection(
+    selected,
+    correct
+  );
 }
 
-
-/**
- * Scores the impact step.
- *
- * @param {*} selected
- * @param {*} correct
- * @returns {object}
- */
 function scoreImpactSelection(
   selected,
   correct
 ) {
   const isCorrect =
-    isCorrectEBMAnswer(selected, correct);
+    isCorrectEBMAnswer(
+      selected,
+      correct
+    );
 
   return {
     isCorrect,
 
     points:
       isCorrect
-        ? EBM_IMPACT_MATRIX_CONFIG.scoring
-            .correctImpact
+        ? EBM_IMPACT_MATRIX_CONFIG
+            .scoring.correctImpact
         : 0,
 
     maximumPoints:
-      EBM_IMPACT_MATRIX_CONFIG.scoring
-        .correctImpact
+      EBM_IMPACT_MATRIX_CONFIG
+        .scoring.correctImpact
   };
 }
 
+function scoreActionSelection(
+  selected,
+  correct
+) {
+  const isCorrect =
+    isCorrectEBMAnswer(
+      selected,
+      correct
+    );
 
-/**
- * Scores the control step.
- *
- * @param {*} selected
- * @param {*} correct
- * @returns {object}
+  return {
+    isCorrect,
+
+    points:
+      isCorrect
+        ? EBM_IMPACT_MATRIX_CONFIG
+            .scoring.correctAction
+        : 0,
+
+    maximumPoints:
+      EBM_IMPACT_MATRIX_CONFIG
+        .scoring.correctAction
+  };
+}
+
+/*
+ * Compatibility name used by the current script.js.
  */
 function scoreControlSelection(
   selected,
   correct
 ) {
-  const isCorrect =
-    isCorrectEBMAnswer(selected, correct);
-
-  return {
-    isCorrect,
-
-    points:
-      isCorrect
-        ? EBM_IMPACT_MATRIX_CONFIG.scoring
-            .correctControl
-        : 0,
-
-    maximumPoints:
-      EBM_IMPACT_MATRIX_CONFIG.scoring
-        .correctControl
-  };
+  return scoreActionSelection(
+    selected,
+    correct
+  );
 }
 
 
-/**
- * Scores the environmental rating step.
- *
- * @param {object} input
- * @returns {object}
- */
-function scoreRatingSelection(input) {
-  const comparison =
-    comparePlayerImpactRating(input);
+/* ============================================================
+   6. COMPLETE SCENARIO SCORE
+============================================================ */
 
-  const scoreConfig =
-    EBM_IMPACT_MATRIX_CONFIG.scoring;
+function calculateScenarioScore(input) {
+  if (
+    !input ||
+    typeof input !== "object"
+  ) {
+    throw new TypeError(
+      "Scenario scoring requires an input object."
+    );
+  }
+
+  const selectedIssue =
+    input.selectedIssue ??
+    input.selectedAspect;
+
+  const correctIssue =
+    input.correctIssue ??
+    input.correctAspect;
+
+  const selectedAction =
+    input.selectedAction ??
+    input.selectedControl;
+
+  const correctAction =
+    input.correctAction ??
+    input.correctControl;
+
+  const issueResult =
+    scoreIssueSelection(
+      selectedIssue,
+      correctIssue
+    );
+
+  const impactResult =
+    scoreImpactSelection(
+      input.selectedImpact,
+      input.correctImpact
+    );
+
+  const actionResult =
+    scoreActionSelection(
+      selectedAction,
+      correctAction
+    );
+
+  const completionBonus =
+    input.completed !== false
+      ? EBM_IMPACT_MATRIX_CONFIG
+          .scoring.completionBonus
+      : 0;
 
   const breakdown = {
-    consequence:
-      comparison.consequenceCorrect
-        ? scoreConfig.correctConsequence
-        : 0,
+    issue: issueResult.points,
 
-    occurrence:
-      comparison.occurrenceCorrect
-        ? scoreConfig.correctOccurrence
-        : 0,
+    /*
+     * Compatibility alias.
+     */
+    aspect: issueResult.points,
 
-    overallRating:
-      comparison.categoryCorrect
-        ? scoreConfig.correctOverallRating
-        : 0
+    impact: impactResult.points,
+
+    action: actionResult.points,
+
+    /*
+     * Compatibility alias.
+     */
+    control: actionResult.points,
+
+    completionBonus
   };
 
-  const points = Object.values(
-    breakdown
-  ).reduce(
-    (total, value) => total + value,
-    0
-  );
+  const totalScore =
+    clampEBMNumber(
+      issueResult.points +
+      impactResult.points +
+      actionResult.points +
+      completionBonus,
+      0,
+      EBM_IMPACT_MATRIX_CONFIG
+        .scoring.maximumScenarioScore
+    );
+
+  const maximumScore =
+    EBM_IMPACT_MATRIX_CONFIG
+      .scoring.maximumScenarioScore;
+
+  const percentage =
+    normalizeEBMPercentage(
+      (
+        totalScore /
+        maximumScore
+      ) *
+      100
+    );
+
+  const correctDecisionCount = [
+    issueResult.isCorrect,
+    impactResult.isCorrect,
+    actionResult.isCorrect
+  ].filter(Boolean).length;
 
   return {
-    ...comparison,
+    totalScore,
+    maximumScore,
+    percentage,
+    breakdown,
 
-    points,
+    answers: {
+      issueCorrect:
+        issueResult.isCorrect,
 
-    maximumPoints:
-      scoreConfig.correctConsequence +
-      scoreConfig.correctOccurrence +
-      scoreConfig.correctOverallRating,
+      aspectCorrect:
+        issueResult.isCorrect,
 
-    breakdown
+      impactCorrect:
+        impactResult.isCorrect,
+
+      actionCorrect:
+        actionResult.isCorrect,
+
+      controlCorrect:
+        actionResult.isCorrect
+    },
+
+    correctDecisionCount,
+    totalDecisionCount: 3,
+
+    allCoreAnswersCorrect:
+      issueResult.isCorrect &&
+      impactResult.isCorrect &&
+      actionResult.isCorrect
   };
 }
 
 
 /* ============================================================
-   15. SCENARIO METRIC CONTRIBUTION
-
-   Each scenario in gameData.js contains metric weights:
-
-   water, energy, waste, ghg, paper and nature.
-
-   Example:
-   metrics: {
-     water: 60,
-     energy: 10,
-     waste: 20,
-     ghg: 5,
-     paper: 0,
-     nature: 25
-   }
-
-   A player's scenario score is used to calculate the earned
-   contribution for each metric.
+   7. STREAK SCORING
 ============================================================ */
 
-/**
- * Calculates the metric contribution from one completed scenario.
- *
- * @param {object} scenarioMetrics
- * @param {number} scenarioPercentage
- * @returns {object}
- */
+function calculateEcoStreak(input) {
+  const previousStreak =
+    Math.max(
+      0,
+      Number(
+        input?.previousStreak || 0
+      )
+    );
+
+  const scenarioWasPerfect =
+    input?.scenarioWasPerfect ===
+    true;
+
+  const currentStreak =
+    scenarioWasPerfect
+      ? previousStreak + 1
+      : 0;
+
+  const threshold =
+    EBM_IMPACT_MATRIX_CONFIG
+      .scoring.streakThreshold;
+
+  const earnedBonus =
+    currentStreak > 0 &&
+    currentStreak % threshold === 0;
+
+  return {
+    previousStreak,
+    currentStreak,
+    threshold,
+    earnedBonus,
+
+    bonusPoints:
+      earnedBonus
+        ? EBM_IMPACT_MATRIX_CONFIG
+            .scoring.streakBonus
+        : 0,
+
+    message:
+      earnedBonus
+        ? `Eco Streak ×${currentStreak}! Bonus earned.`
+        : (
+            currentStreak > 1
+              ? `Eco Streak ×${currentStreak}`
+              : ""
+          )
+  };
+}
+
+
+/* ============================================================
+   8. COLLECTIBLES
+============================================================ */
+
+function createEmptyCollectibleState() {
+  return {
+    waterDrop: 0,
+    greenLeaf: 0,
+    recyclingToken: 0,
+    energySpark: 0
+  };
+}
+
+function awardScenarioCollectible(
+  collectibleState,
+  scenario,
+  eligible = true
+) {
+  const currentState = {
+    ...createEmptyCollectibleState(),
+    ...(
+      collectibleState &&
+      typeof collectibleState ===
+      "object"
+        ? collectibleState
+        : {}
+    )
+  };
+
+  const collectibleId =
+    scenario?.reward
+      ?.collectibleId;
+
+  const quantity =
+    Math.max(
+      1,
+      Number(
+        scenario?.reward?.quantity ||
+        1
+      )
+    );
+
+  if (
+    eligible !== true ||
+    !EBM_COLLECTIBLE_CONFIG[
+      collectibleId
+    ]
+  ) {
+    return {
+      collectibles: currentState,
+      awarded: false,
+      collectible: null,
+      quantity: 0,
+      message: ""
+    };
+  }
+
+  currentState[collectibleId] =
+    Number(
+      currentState[
+        collectibleId
+      ] || 0
+    ) + quantity;
+
+  const collectible =
+    EBM_COLLECTIBLE_CONFIG[
+      collectibleId
+    ];
+
+  return {
+    collectibles: currentState,
+    awarded: true,
+    collectible: {
+      ...collectible
+    },
+    quantity,
+
+    message:
+      scenario?.reward
+        ?.bonusMessage ||
+      `${collectible.icon} ${collectible.name} collected!`
+  };
+}
+
+function calculateCollectibleTotal(
+  collectibleState
+) {
+  const safeState =
+    collectibleState &&
+    typeof collectibleState ===
+    "object"
+      ? collectibleState
+      : {};
+
+  return Object.keys(
+    EBM_COLLECTIBLE_CONFIG
+  ).reduce(
+    (total, collectibleId) =>
+      total +
+      Number(
+        safeState[
+          collectibleId
+        ] || 0
+      ),
+    0
+  );
+}
+
+
+/* ============================================================
+   9. ENVIRONMENTAL METRICS
+============================================================ */
+
 function calculateScenarioMetricContribution(
   scenarioMetrics,
   scenarioPercentage
@@ -1268,30 +712,35 @@ function calculateScenarioMetricContribution(
 
   const result = {};
 
-  Object.keys(EBM_METRIC_CONFIG).forEach(
+  Object.keys(
+    EBM_METRIC_CONFIG
+  ).forEach(
     (metricId) => {
-      const availableWeight =
+      const available =
         clampEBMNumber(
-          scenarioMetrics?.[metricId],
+          scenarioMetrics?.[
+            metricId
+          ],
           0,
           100
         );
 
-      const earnedWeight =
+      const earned =
         (
-          availableWeight *
+          available *
           safePercentage
-        ) / 100;
+        ) /
+        100;
 
       result[metricId] = {
         available:
           Number(
-            availableWeight.toFixed(2)
+            available.toFixed(2)
           ),
 
         earned:
           Number(
-            earnedWeight.toFixed(2)
+            earned.toFixed(2)
           ),
 
         scenarioPercentage:
@@ -1303,40 +752,21 @@ function calculateScenarioMetricContribution(
   return result;
 }
 
-
-/* ============================================================
-   16. AGGREGATED METRIC SCORES
-============================================================ */
-
-/**
- * Calculates overall water, energy, waste, GHG, paper and nature
- * scores from completed scenario records.
- *
- * Expected scenario result format:
- *
- * {
- *   metrics: {
- *     water: 50,
- *     energy: 20,
- *     ...
- *   },
- *   percentage: 80
- * }
- *
- * @param {Array<object>} scenarioResults
- * @returns {object}
- */
 function calculateEnvironmentalMetricScores(
   scenarioResults
 ) {
   const safeResults =
-    Array.isArray(scenarioResults)
+    Array.isArray(
+      scenarioResults
+    )
       ? scenarioResults
       : [];
 
   const totals = {};
 
-  Object.keys(EBM_METRIC_CONFIG).forEach(
+  Object.keys(
+    EBM_METRIC_CONFIG
+  ).forEach(
     (metricId) => {
       totals[metricId] = {
         available: 0,
@@ -1357,11 +787,17 @@ function calculateEnvironmentalMetricScores(
         EBM_METRIC_CONFIG
       ).forEach(
         (metricId) => {
-          totals[metricId].available +=
-            contribution[metricId].available;
+          totals[metricId]
+            .available +=
+            contribution[
+              metricId
+            ].available;
 
-          totals[metricId].earned +=
-            contribution[metricId].earned;
+          totals[metricId]
+            .earned +=
+            contribution[
+              metricId
+            ].earned;
         }
       );
     }
@@ -1369,35 +805,45 @@ function calculateEnvironmentalMetricScores(
 
   const metricScores = {};
 
-  Object.keys(EBM_METRIC_CONFIG).forEach(
+  Object.keys(
+    EBM_METRIC_CONFIG
+  ).forEach(
     (metricId) => {
       const available =
-        totals[metricId].available;
+        totals[
+          metricId
+        ].available;
 
       const earned =
-        totals[metricId].earned;
+        totals[
+          metricId
+        ].earned;
 
       const percentage =
         available > 0
           ? normalizeEBMPercentage(
-              (earned / available) * 100
+              (
+                earned /
+                available
+              ) *
+              100
             )
           : 0;
 
       metricScores[metricId] = {
-        id: metricId,
-
-        name:
-          EBM_METRIC_CONFIG[metricId].name,
-
-        icon:
-          EBM_METRIC_CONFIG[metricId].icon,
+        ...EBM_METRIC_CONFIG[
+          metricId
+        ],
 
         available:
-          Number(available.toFixed(2)),
+          Number(
+            available.toFixed(2)
+          ),
 
         earned:
-          Number(earned.toFixed(2)),
+          Number(
+            earned.toFixed(2)
+          ),
 
         percentage
       };
@@ -1409,72 +855,53 @@ function calculateEnvironmentalMetricScores(
 
 
 /* ============================================================
-   17. AREA SCORE CALCULATION
+   10. AREA AND OVERALL SCORES
 ============================================================ */
 
-/**
- * Calculates the score for one completed area.
- *
- * Each scenario result should contain:
- *
- * {
- *   totalScore: 80,
- *   maximumScore: 100,
- *   percentage: 80,
- *   correctDecisionCount: 5,
- *   totalDecisionCount: 6
- * }
- *
- * @param {Array<object>} scenarioResults
- * @returns {object}
- */
 function calculateAreaScore(
   scenarioResults
 ) {
   const safeResults =
-    Array.isArray(scenarioResults)
+    Array.isArray(
+      scenarioResults
+    )
       ? scenarioResults
       : [];
 
-  if (safeResults.length === 0) {
-    return {
-      score: 0,
-      maximumScore: 0,
-      percentage: 0,
-      scenariosCompleted: 0,
-      correctDecisionCount: 0,
-      totalDecisionCount: 0,
-      correctDecisionPercentage: 0
-    };
-  }
+  const totals =
+    safeResults.reduce(
+      (summary, result) => {
+        summary.score +=
+          Number(
+            result.totalScore || 0
+          );
 
-  const totals = safeResults.reduce(
-    (summary, result) => {
-      summary.score +=
-        Number(result.totalScore || 0);
+        summary.maximumScore +=
+          Number(
+            result.maximumScore || 100
+          );
 
-      summary.maximumScore +=
-        Number(result.maximumScore || 100);
+        summary.correctDecisionCount +=
+          Number(
+            result.correctDecisionCount ||
+            0
+          );
 
-      summary.correctDecisionCount +=
-        Number(
-          result.correctDecisionCount || 0
-        );
+        summary.totalDecisionCount +=
+          Number(
+            result.totalDecisionCount ||
+            0
+          );
 
-      summary.totalDecisionCount +=
-        Number(
-          result.totalDecisionCount || 0
-        );
-
-      return summary;
-    },
-    {
-      score: 0,
-      maximumScore: 0,
-      correctDecisionCount: 0,
-      totalDecisionCount: 0
-    }
-  );
+        return summary;
+      },
+      {
+        score: 0,
+        maximumScore: 0,
+        correctDecisionCount: 0,
+        totalDecisionCount: 0
+      }
+    );
 
   const percentage =
     totals.maximumScore > 0
@@ -1482,7 +909,8 @@ function calculateAreaScore(
           (
             totals.score /
             totals.maximumScore
-          ) * 100
+          ) *
+          100
         )
       : 0;
 
@@ -1492,13 +920,16 @@ function calculateAreaScore(
           (
             totals.correctDecisionCount /
             totals.totalDecisionCount
-          ) * 100
+          ) *
+          100
         )
       : 0;
 
   return {
     score:
-      Number(totals.score.toFixed(2)),
+      Number(
+        totals.score.toFixed(2)
+      ),
 
     maximumScore:
       Number(
@@ -1520,47 +951,37 @@ function calculateAreaScore(
   };
 }
 
-
-/* ============================================================
-   18. OVERALL GAME SCORE
-============================================================ */
-
-/**
- * Calculates the overall Eco Score.
- *
- * The default overall score is based on the total points earned
- * across completed scenarios.
- *
- * @param {Array<object>} scenarioResults
- * @param {number} [totalAvailableScenarios]
- * @returns {object}
- */
 function calculateOverallEcoScore(
   scenarioResults,
   totalAvailableScenarios
 ) {
   const safeResults =
-    Array.isArray(scenarioResults)
+    Array.isArray(
+      scenarioResults
+    )
       ? scenarioResults
       : [];
 
-  const maximumPerScenario =
-    EBM_IMPACT_MATRIX_CONFIG.scoring
-      .maximumScenarioScore;
-
   const availableScenarioCount =
-    Number.isInteger(
-      Number(totalAvailableScenarios)
-    ) &&
-    Number(totalAvailableScenarios) > 0
-      ? Number(totalAvailableScenarios)
+    Number(
+      totalAvailableScenarios
+    ) > 0
+      ? Number(
+          totalAvailableScenarios
+        )
       : safeResults.length;
+
+  const maximumPerScenario =
+    EBM_IMPACT_MATRIX_CONFIG
+      .scoring.maximumScenarioScore;
 
   const totalEarnedPoints =
     safeResults.reduce(
       (total, result) =>
         total +
-        Number(result.totalScore || 0),
+        Number(
+          result.totalScore || 0
+        ),
       0
     );
 
@@ -1574,7 +995,8 @@ function calculateOverallEcoScore(
           (
             totalEarnedPoints /
             totalAvailablePoints
-          ) * 100
+          ) *
+          100
         )
       : 0;
 
@@ -1584,7 +1006,8 @@ function calculateOverallEcoScore(
           (
             safeResults.length /
             availableScenarioCount
-          ) * 100
+          ) *
+          100
         )
       : 0;
 
@@ -1594,11 +1017,7 @@ function calculateOverallEcoScore(
         totalEarnedPoints.toFixed(2)
       ),
 
-    totalAvailablePoints:
-      Number(
-        totalAvailablePoints.toFixed(2)
-      ),
-
+    totalAvailablePoints,
     completedScenarios:
       safeResults.length,
 
@@ -1606,7 +1025,6 @@ function calculateOverallEcoScore(
       availableScenarioCount,
 
     completionPercentage,
-
     percentage,
 
     resultLevel:
@@ -1616,17 +1034,6 @@ function calculateOverallEcoScore(
   };
 }
 
-
-/* ============================================================
-   19. FINAL RESULT LEVEL
-============================================================ */
-
-/**
- * Returns the final Eco result level.
- *
- * @param {number} percentage
- * @returns {object}
- */
 function getFinalEcoResultLevel(
   percentage
 ) {
@@ -1634,6 +1041,27 @@ function getFinalEcoResultLevel(
     normalizeEBMPercentage(
       percentage
     );
+
+  const gameDataResult =
+    typeof window !== "undefined" &&
+    typeof window.getEBMResultLevel ===
+      "function"
+      ? window.getEBMResultLevel(
+          safePercentage
+        )
+      : null;
+
+  if (gameDataResult) {
+    return {
+      ...gameDataResult,
+      level:
+        gameDataResult.level ||
+        gameDataResult.title,
+      title:
+        gameDataResult.title ||
+        gameDataResult.level
+    };
+  }
 
   const result =
     EBM_IMPACT_MATRIX_CONFIG
@@ -1646,117 +1074,112 @@ function getFinalEcoResultLevel(
             level.maximum
       );
 
-  return result
-    ? { ...result }
+  return {
+    ...(
+      result ||
+      EBM_IMPACT_MATRIX_CONFIG
+        .finalResultLevels[0]
+    )
+  };
+}
+
+
+/* ============================================================
+   11. AREA BADGES AND UNLOCKING
+============================================================ */
+
+function getAreaCompletionBadge(
+  area,
+  completed = true
+) {
+  if (
+    !area ||
+    typeof area !== "object" ||
+    completed !== true
+  ) {
+    return null;
+  }
+
+  return area.badge
+    ? {
+        ...area.badge
+      }
     : {
-        ...EBM_IMPACT_MATRIX_CONFIG
-          .finalResultLevels[0]
+        id:
+          `${area.id}-restored`,
+
+        name:
+          `${area.name} Restored`,
+
+        icon:
+          area.icon || "✅",
+
+        message:
+          `You restored ${area.name}.`
       };
 }
 
-
-/* ============================================================
-   20. IMPACT CATEGORY COUNTS
-============================================================ */
-
-/**
- * Counts Low, Medium, High and compliance-priority scenarios.
- *
- * Expected result format:
- *
- * {
- *   expectedRating: {
- *     score: 12,
- *     level: "High"
- *   },
- *   complianceObligation: false
- * }
- *
- * @param {Array<object>} scenarioResults
- * @returns {object}
- */
-function countEnvironmentalImpactCategories(
-  scenarioResults
+function getAreaUnlockState(
+  areaId,
+  completedAreaIds = []
 ) {
-  const counts = {
-    low: 0,
-    medium: 0,
-    high: 0,
-    compliancePriority: 0,
-    significantTotal: 0
-  };
-
-  const safeResults =
-    Array.isArray(scenarioResults)
-      ? scenarioResults
+  const completedIds =
+    Array.isArray(
+      completedAreaIds
+    )
+      ? completedAreaIds
       : [];
 
-  safeResults.forEach(
-    (result) => {
-      const score =
-        Number(
-          result.expectedRating?.score ??
-          result.rating?.expectedScore ??
-          result.impactScore ??
-          0
+  if (
+    typeof window !== "undefined" &&
+    typeof window.getEBMAreaUnlockState ===
+      "function"
+  ) {
+    return window.getEBMAreaUnlockState(
+      areaId,
+      completedIds.length
+    );
+  }
+
+  return {
+    unlocked: true,
+    requiredCompletedAreas: 0
+  };
+}
+
+function calculateNewlyUnlockedAreas(
+  completedAreaIds = []
+) {
+  const areas =
+    Array.isArray(
+      window.EBM_GAME_DATA?.areas
+    )
+      ? window.EBM_GAME_DATA.areas
+      : [];
+
+  return areas.filter(
+    (area) => {
+      const state =
+        getAreaUnlockState(
+          area.id,
+          completedAreaIds
         );
 
-      if (
-        !Number.isFinite(score) ||
-        score < 1
-      ) {
-        return;
-      }
-
-      const category =
-        getEnvironmentalImpactCategory(
-          score
-        );
-
-      if (category.level === "Low") {
-        counts.low += 1;
-      }
-
-      if (category.level === "Medium") {
-        counts.medium += 1;
-      }
-
-      if (category.level === "High") {
-        counts.high += 1;
-      }
-
-      const compliance =
-        result.complianceObligation === true;
-
-      if (compliance) {
-        counts.compliancePriority += 1;
-      }
-
-      if (
-        category.level === "High" ||
-        compliance
-      ) {
-        counts.significantTotal += 1;
-      }
+      return (
+        state.unlocked &&
+        !completedAreaIds.includes(
+          area.id
+        )
+      );
     }
   );
-
-  return counts;
 }
 
 
 /* ============================================================
-   21. SCENARIO FEEDBACK GENERATION
+   12. FEEDBACK
 ============================================================ */
 
-/**
- * Generates learning-oriented feedback for a completed scenario.
- *
- * @param {object} input
- * @param {object} input.scenario
- * @param {object} input.scenarioScore
- * @returns {object}
- */
 function generateScenarioFeedback(input) {
   if (
     !input ||
@@ -1783,61 +1206,30 @@ function generateScenarioFeedback(input) {
   let title =
     "Environmental Situation Reviewed";
 
-  let status =
-    "learning";
-
-  let icon =
-    "💡";
+  let status = "learning";
+  let icon = "💡";
 
   if (percentage >= 90) {
     title =
-      "Excellent Environmental Decision";
-
-    status =
-      "excellent";
-
-    icon =
-      "✓";
+      "Excellent Rescue Decision";
+    status = "excellent";
+    icon = "✓";
   } else if (percentage >= 70) {
     title =
-      "Good Environmental Decision";
-
-    status =
-      "good";
-
-    icon =
-      "✓";
-  } else if (percentage >= 50) {
+      "Good Rescue Decision";
+    status = "good";
+    icon = "✓";
+  } else if (percentage >= 40) {
     title =
-      "Good Progress — Review the Details";
-
-    status =
-      "partial";
-
-    icon =
-      "↻";
+      "Good Attempt — Review the Fix";
+    status = "partial";
+    icon = "↻";
   } else {
     title =
-      "Review This Environmental Situation";
-
-    status =
-      "review";
-
-    icon =
-      "!";
+      "Review This Environmental Issue";
+    status = "review";
+    icon = "!";
   }
-
-  const expectedEvaluation =
-    evaluateEnvironmentalImpact({
-      consequence:
-        scenario.rating.consequence,
-
-      occurrence:
-        scenario.rating.occurrence,
-
-      complianceObligation:
-        scenario.complianceObligation
-    });
 
   return {
     title,
@@ -1845,19 +1237,56 @@ function generateScenarioFeedback(input) {
     icon,
 
     summary:
-      `You earned ${scenarioScore.totalScore} out of ${scenarioScore.maximumScore} points in this situation.`,
+      `You earned ${scenarioScore.totalScore} out of ${scenarioScore.maximumScore} points.`,
 
+    issue:
+      scenario.issue?.correct ||
+      scenario.aspect?.correct ||
+      "",
+
+    /*
+     * Compatibility alias.
+     */
     aspect:
-      scenario.aspect.correct,
+      scenario.issue?.correct ||
+      scenario.aspect?.correct ||
+      "",
 
     impact:
-      scenario.impact.correct,
+      scenario.impact?.correct ||
+      "",
 
+    action:
+      scenario.action?.correct ||
+      scenario.control?.correct ||
+      "",
+
+    /*
+     * Compatibility alias.
+     */
     control:
-      scenario.control.correct,
+      scenario.action?.correct ||
+      scenario.control?.correct ||
+      "",
 
-    rating:
-      expectedEvaluation,
+    resolution:
+      scenario.resolution
+        ? {
+            ...scenario.resolution
+          }
+        : null,
+
+    correctedImage:
+      scenario.scene
+        ?.correctedImage ||
+      "",
+
+    reward:
+      scenario.reward
+        ? {
+            ...scenario.reward
+          }
+        : null,
 
     pointsEarned:
       scenarioScore.totalScore,
@@ -1866,41 +1295,50 @@ function generateScenarioFeedback(input) {
       scenarioScore.maximumScore,
 
     awarenessMessage:
-      scenario.awarenessMessage,
+      scenario.awarenessMessage ||
+      "",
 
     complianceAlert:
-      scenario.complianceObligation === true,
+      scenario.complianceObligation ===
+      true,
 
     complianceMessage:
       scenario.complianceMessage ||
-      expectedEvaluation.complianceMessage,
+      "",
 
     learningPoints:
       Array.isArray(
         scenario.learningPoints
       )
-        ? [...scenario.learningPoints]
-        : []
+        ? [
+            ...scenario.learningPoints
+          ]
+        : [],
+
+    /*
+     * Compatibility object. Rating is no longer scored.
+     */
+    rating: {
+      score: 0,
+      numericalScore: 0,
+      finalLevel: "Removed",
+      finalClassification:
+        "Not part of Version 2",
+      colorClass: "low",
+      action:
+        "The player now identifies the issue, impact and best action."
+    }
   };
 }
 
-
-/* ============================================================
-   22. AREA COMPLETION FEEDBACK
-============================================================ */
-
-/**
- * Generates feedback after all scenarios in an area are completed.
- *
- * @param {object} area
- * @param {Array<object>} scenarioResults
- * @returns {object}
- */
 function generateAreaCompletionFeedback(
   area,
   scenarioResults
 ) {
-  if (!area || typeof area !== "object") {
+  if (
+    !area ||
+    typeof area !== "object"
+  ) {
     throw new TypeError(
       "Area completion feedback requires an area object."
     );
@@ -1911,39 +1349,39 @@ function generateAreaCompletionFeedback(
       scenarioResults
     );
 
-  let message =
-    "You completed the environmental situations in this area.";
+  const badge =
+    getAreaCompletionBadge(
+      area,
+      true
+    );
 
-  if (areaScore.percentage >= 85) {
+  let message =
+    `You completed both rescue situations in ${area.name}.`;
+
+  if (areaScore.percentage >= 90) {
     message =
-      "Excellent work. You demonstrated strong understanding of the environmental aspects and controls in this area.";
-  } else if (areaScore.percentage >= 70) {
+      `Excellent rescue work. ${badge?.name || area.name} earned!`;
+  } else if (
+    areaScore.percentage >= 70
+  ) {
     message =
-      "Good work. You identified most environmental issues and selected suitable controls.";
-  } else if (areaScore.percentage >= 50) {
-    message =
-      "You completed the area. Review the awareness messages to improve your environmental decision-making.";
+      `Good work. You restored ${area.name} and earned its completion badge.`;
   } else {
     message =
-      "You completed the area, but several important environmental controls require further review.";
+      `You restored ${area.name}. Review the fixes to strengthen your environmental decisions.`;
   }
-
-  const learningPoints =
-    Array.isArray(
-      area.learningObjectives
-    )
-      ? [...area.learningObjectives]
-      : [];
 
   return {
     areaId: area.id,
-
     areaName: area.name,
 
     title:
+      badge?.name ||
       `${area.name} Restored`,
 
     message,
+
+    badge,
 
     score:
       areaScore.score,
@@ -1964,33 +1402,52 @@ function generateAreaCompletionFeedback(
       areaScore.totalDecisionCount,
 
     correctDecisionPercentage:
-      areaScore.correctDecisionPercentage,
+      areaScore
+        .correctDecisionPercentage,
 
     ecoImprovement:
       `+${areaScore.percentage}%`,
 
-    learningPoints
+    learningPoints:
+      Array.isArray(
+        area.learningObjectives
+      )
+        ? [
+            ...area.learningObjectives
+          ]
+        : []
   };
 }
 
 
 /* ============================================================
-   23. FINAL GAME SUMMARY
+   13. LEGACY IMPACT COUNTS
+
+   Rating categories are no longer part of gameplay. These fields
+   remain at zero so the existing dashboard does not break before
+   index.html and script.js are updated.
 ============================================================ */
 
-/**
- * Generates the complete final game summary.
- *
- * @param {object} input
- * @param {Array<object>} input.scenarioResults
- * @param {number} input.totalAvailableScenarios
- * @param {number} input.areasCompleted
- * @param {number} input.totalAvailableAreas
- * @param {Array<string>} [input.commitments]
- * @returns {object}
- */
+function countEnvironmentalImpactCategories() {
+  return {
+    low: 0,
+    medium: 0,
+    high: 0,
+    compliancePriority: 0,
+    significantTotal: 0
+  };
+}
+
+
+/* ============================================================
+   14. FINAL GAME SUMMARY
+============================================================ */
+
 function generateFinalGameSummary(input) {
-  if (!input || typeof input !== "object") {
+  if (
+    !input ||
+    typeof input !== "object"
+  ) {
     throw new TypeError(
       "Final game summary requires an input object."
     );
@@ -2014,17 +1471,13 @@ function generateFinalGameSummary(input) {
       scenarioResults
     );
 
-  const impactCounts =
-    countEnvironmentalImpactCategories(
-      scenarioResults
-    );
-
-  const totalCorrectDecisions =
+  const correctDecisions =
     scenarioResults.reduce(
       (total, result) =>
         total +
         Number(
-          result.correctDecisionCount || 0
+          result.correctDecisionCount ||
+          0
         ),
       0
     );
@@ -2034,7 +1487,8 @@ function generateFinalGameSummary(input) {
       (total, result) =>
         total +
         Number(
-          result.totalDecisionCount || 0
+          result.totalDecisionCount ||
+          0
         ),
       0
     );
@@ -2043,9 +1497,10 @@ function generateFinalGameSummary(input) {
     totalDecisions > 0
       ? normalizeEBMPercentage(
           (
-            totalCorrectDecisions /
+            correctDecisions /
             totalDecisions
-          ) * 100
+          ) *
+          100
         )
       : 0;
 
@@ -2071,9 +1526,21 @@ function generateFinalGameSummary(input) {
           (
             areasCompleted /
             totalAvailableAreas
-          ) * 100
+          ) *
+          100
         )
       : 0;
+
+  const collectibles = {
+    ...createEmptyCollectibleState(),
+    ...(
+      input.collectibles &&
+      typeof input.collectibles ===
+      "object"
+        ? input.collectibles
+        : {}
+    )
+  };
 
   return {
     ecoScore:
@@ -2089,65 +1556,358 @@ function generateFinalGameSummary(input) {
       overallScore.totalAvailablePoints,
 
     areasCompleted,
-
     totalAvailableAreas,
-
     areaCompletionPercentage,
 
     scenariosCompleted:
       overallScore.completedScenarios,
 
     totalAvailableScenarios:
-      overallScore.totalAvailableScenarios,
+      overallScore
+        .totalAvailableScenarios,
 
     scenarioCompletionPercentage:
-      overallScore.completionPercentage,
+      overallScore
+        .completionPercentage,
 
-    correctDecisions:
-      totalCorrectDecisions,
-
+    correctDecisions,
     totalDecisions,
-
     correctDecisionPercentage,
 
-    impactCounts,
-
-    highImpactCount:
-      impactCounts.high,
-
-    compliancePriorityCount:
-      impactCounts.compliancePriority,
-
-    significantImpactCount:
-      impactCounts.significantTotal,
-
     metrics,
+
+    collectibles,
+
+    totalCollectibles:
+      calculateCollectibleTotal(
+        collectibles
+      ),
+
+    badges:
+      Array.isArray(
+        input.badges
+      )
+        ? [
+            ...input.badges
+          ]
+        : [],
+
+    currentStreak:
+      Math.max(
+        0,
+        Number(
+          input.currentStreak || 0
+        )
+      ),
+
+    bestStreak:
+      Math.max(
+        0,
+        Number(
+          input.bestStreak || 0
+        )
+      ),
+
+    gameMode:
+      input.gameMode ||
+      "normal",
+
+    remainingSeconds:
+      Number.isFinite(
+        Number(
+          input.remainingSeconds
+        )
+      )
+        ? Math.max(
+            0,
+            Number(
+              input.remainingSeconds
+            )
+          )
+        : null,
 
     commitments:
       Array.isArray(
         input.commitments
       )
-        ? [...input.commitments]
-        : []
+        ? [
+            ...input.commitments
+          ]
+        : [],
+
+    /*
+     * Compatibility fields for the current final screen.
+     */
+    impactCounts:
+      countEnvironmentalImpactCategories(),
+
+    highImpactCount: 0,
+    compliancePriorityCount: 0,
+    significantImpactCount: 0
   };
 }
 
 
 /* ============================================================
-   24. DASHBOARD DOM UPDATE HELPERS
+   15. GAME TIMER
 ============================================================ */
 
-/**
- * Updates a progress bar safely.
- *
- * @param {HTMLElement|null} element
- * @param {number} percentage
- */
+function createGameTimerState(
+  mode = "normal"
+) {
+  const modeConfig =
+    EBM_IMPACT_MATRIX_CONFIG
+      .gameModes[mode] ||
+    EBM_IMPACT_MATRIX_CONFIG
+      .gameModes.normal;
+
+  return {
+    mode: modeConfig.id,
+    timed: modeConfig.timed,
+
+    totalSeconds:
+      modeConfig.timeLimitSeconds,
+
+    remainingSeconds:
+      modeConfig.timeLimitSeconds,
+
+    startedAt: null,
+    completedAt: null,
+    expired: false
+  };
+}
+
+function calculateRemainingGameTime(
+  timerState,
+  now = Date.now()
+) {
+  if (
+    !timerState ||
+    timerState.timed !== true ||
+    !timerState.startedAt
+  ) {
+    return {
+      remainingSeconds:
+        timerState?.remainingSeconds ??
+        null,
+
+      expired: false
+    };
+  }
+
+  const startTime =
+    new Date(
+      timerState.startedAt
+    ).getTime();
+
+  const elapsedSeconds =
+    Math.max(
+      0,
+      Math.floor(
+        (
+          Number(now) -
+          startTime
+        ) /
+        1000
+      )
+    );
+
+  const remainingSeconds =
+    Math.max(
+      0,
+      Number(
+        timerState.totalSeconds ||
+        0
+      ) -
+      elapsedSeconds
+    );
+
+  return {
+    remainingSeconds,
+    expired:
+      remainingSeconds <= 0
+  };
+}
+
+function formatGameTime(seconds) {
+  const safeSeconds =
+    Math.max(
+      0,
+      Math.floor(
+        Number(seconds) || 0
+      )
+    );
+
+  const minutes =
+    Math.floor(
+      safeSeconds / 60
+    );
+
+  const remaining =
+    safeSeconds % 60;
+
+  return (
+    `${String(minutes).padStart(2, "0")}:` +
+    `${String(remaining).padStart(2, "0")}`
+  );
+}
+
+
+/* ============================================================
+   16. SCORE STATE
+============================================================ */
+
+function createInitialEnvironmentalScoreState() {
+  return {
+    totalScore: 0,
+    maximumScore: 0,
+    ecoScore: 0,
+
+    completedAreaIds: [],
+    completedScenarioIds: [],
+    scenarioResults: [],
+    areaResults: {},
+
+    metrics:
+      calculateEnvironmentalMetricScores(
+        []
+      ),
+
+    /*
+     * Compatibility field.
+     */
+    impactCounts:
+      countEnvironmentalImpactCategories(),
+
+    collectibles:
+      createEmptyCollectibleState(),
+
+    badges: [],
+
+    currentStreak: 0,
+    bestStreak: 0,
+    streakBonusPoints: 0,
+
+    unlockedAreaIds: [
+      "production",
+      "offices"
+    ],
+
+    gameMode: "normal",
+
+    timer:
+      createGameTimerState(
+        "normal"
+      ),
+
+    commitments: [],
+
+    startedAt: null,
+    completedAt: null
+  };
+}
+
+function updateEnvironmentalScoreState(
+  currentState,
+  scenarioResult
+) {
+  const nextState = {
+    ...createInitialEnvironmentalScoreState(),
+    ...(
+      currentState &&
+      typeof currentState ===
+      "object"
+        ? cloneEBMObject(
+            currentState
+          )
+        : {}
+    )
+  };
+
+  if (
+    !scenarioResult ||
+    typeof scenarioResult !==
+    "object"
+  ) {
+    return nextState;
+  }
+
+  const resultId =
+    scenarioResult.scenarioId ||
+    scenarioResult.id;
+
+  if (resultId) {
+    nextState.scenarioResults =
+      nextState.scenarioResults
+        .filter(
+          (result) =>
+            (
+              result.scenarioId ||
+              result.id
+            ) !== resultId
+        );
+
+    nextState.scenarioResults.push(
+      cloneEBMObject(
+        scenarioResult
+      )
+    );
+
+    nextState.completedScenarioIds =
+      Array.from(
+        new Set([
+          ...nextState
+            .completedScenarioIds,
+          resultId
+        ])
+      );
+  }
+
+  const totalAvailableScenarios =
+    typeof window !== "undefined" &&
+    typeof window.getEBMTotalScenarioCount ===
+      "function"
+      ? window.getEBMTotalScenarioCount()
+      : nextState.scenarioResults.length;
+
+  const overall =
+    calculateOverallEcoScore(
+      nextState.scenarioResults,
+      totalAvailableScenarios
+    );
+
+  nextState.totalScore =
+    overall.totalEarnedPoints;
+
+  nextState.maximumScore =
+    overall.totalAvailablePoints;
+
+  nextState.ecoScore =
+    overall.percentage;
+
+  nextState.metrics =
+    calculateEnvironmentalMetricScores(
+      nextState.scenarioResults
+    );
+
+  nextState.impactCounts =
+    countEnvironmentalImpactCategories();
+
+  return nextState;
+}
+
+
+/* ============================================================
+   17. DASHBOARD RENDERING HELPERS
+============================================================ */
+
 function updateEBMProgressBar(
   element,
   percentage
 ) {
-  if (!(element instanceof HTMLElement)) {
+  if (
+    !(element instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -2165,12 +1925,6 @@ function updateEBMProgressBar(
   );
 }
 
-
-/**
- * Updates all environmental metric cards.
- *
- * @param {object} metricScores
- */
 function renderEnvironmentalMetricScores(
   metricScores
 ) {
@@ -2185,12 +1939,11 @@ function renderEnvironmentalMetricScores(
     EBM_METRIC_CONFIG
   ).forEach(
     ([metricId, config]) => {
-      const metric =
-        metricScores[metricId];
-
       const percentage =
         normalizeEBMPercentage(
-          metric?.percentage || 0
+          metricScores[
+            metricId
+          ]?.percentage || 0
         );
 
       const scoreElement =
@@ -2216,12 +1969,6 @@ function renderEnvironmentalMetricScores(
   );
 }
 
-
-/**
- * Updates the Low, Medium and High count cards.
- *
- * @param {object} counts
- */
 function renderEnvironmentalImpactCounts(
   counts
 ) {
@@ -2263,140 +2010,41 @@ function renderEnvironmentalImpactCounts(
   );
 }
 
-
-/**
- * Updates the live environmental rating calculator.
- *
- * @param {number|null} consequence
- * @param {number|null} occurrence
- * @returns {object|null}
- */
-function renderLiveEnvironmentalRating(
-  consequence,
-  occurrence
+function renderCollectibleCounts(
+  collectibleState
 ) {
-  const consequenceElement =
-    document.getElementById(
-      "selectedImpactValue"
-    );
-
-  const occurrenceElement =
-    document.getElementById(
-      "selectedLikelihoodValue"
-    );
-
-  const scoreElement =
-    document.getElementById(
-      "calculatedRatingValue"
-    );
-
-  const categoryBox =
-    document.getElementById(
-      "calculatedImpactCategory"
-    );
-
-  const categoryBadge =
-    document.getElementById(
-      "calculatedImpactBadge"
-    );
-
-  const categoryMessage =
-    document.getElementById(
-      "calculatedImpactMessage"
-    );
-
-  if (consequenceElement) {
-    consequenceElement.textContent =
-      isValidEBMRatingValue(
-        consequence
-      )
-        ? String(consequence)
-        : "—";
-  }
-
-  if (occurrenceElement) {
-    occurrenceElement.textContent =
-      isValidEBMRatingValue(
-        occurrence
-      )
-        ? String(occurrence)
-        : "—";
-  }
-
-  if (
-    !isValidEBMRatingValue(
-      consequence
-    ) ||
-    !isValidEBMRatingValue(
-      occurrence
+  const safeState = {
+    ...createEmptyCollectibleState(),
+    ...(
+      collectibleState &&
+      typeof collectibleState ===
+      "object"
+        ? collectibleState
+        : {}
     )
-  ) {
-    if (scoreElement) {
-      scoreElement.textContent =
-        "—";
+  };
+
+  Object.keys(
+    EBM_COLLECTIBLE_CONFIG
+  ).forEach(
+    (collectibleId) => {
+      const element =
+        document.querySelector(
+          `[data-collectible-count="${collectibleId}"]`
+        );
+
+      if (element) {
+        element.textContent =
+          String(
+            safeState[
+              collectibleId
+            ]
+          );
+      }
     }
-
-    if (categoryBox) {
-      categoryBox.classList.add(
-        "hidden"
-      );
-    }
-
-    return null;
-  }
-
-  const evaluation =
-    evaluateEnvironmentalImpact({
-      consequence,
-      occurrence,
-      complianceObligation: false
-    });
-
-  if (scoreElement) {
-    scoreElement.textContent =
-      String(evaluation.score);
-  }
-
-  if (categoryBox) {
-    categoryBox.classList.remove(
-      "hidden",
-      "low",
-      "medium",
-      "high"
-    );
-
-    categoryBox.classList.add(
-      evaluation.colorClass
-    );
-  }
-
-  if (categoryBadge) {
-    categoryBadge.textContent =
-      `${evaluation.finalLevel} — ${evaluation.finalClassification}`;
-  }
-
-  if (categoryMessage) {
-    categoryMessage.textContent =
-      evaluation.action;
-  }
-
-  return evaluation;
+  );
 }
 
-
-/* ============================================================
-   25. SVG FINAL SCORE CIRCLE
-============================================================ */
-
-/**
- * Updates the final score circle in index.html.
- *
- * The SVG circle has:
- * radius = 58
- * circumference ≈ 364.42
- *
- * @param {number} percentage
- */
 function renderFinalEcoScoreCircle(
   percentage
 ) {
@@ -2416,7 +2064,6 @@ function renderFinalEcoScoreCircle(
     );
 
   const radius = 58;
-
   const circumference =
     2 * Math.PI * radius;
 
@@ -2434,11 +2081,6 @@ function renderFinalEcoScoreCircle(
 
     circle.style.strokeDashoffset =
       String(offset);
-
-    circle.setAttribute(
-      "aria-valuenow",
-      String(safePercentage)
-    );
   }
 
   if (scoreText) {
@@ -2449,80 +2091,198 @@ function renderFinalEcoScoreCircle(
 
 
 /* ============================================================
-   26. MATRIX TABLE GENERATOR
+   18. REMOVED RATING COMPATIBILITY
 
-   This is useful if script.js later displays a matrix modal.
+   These functions prevent errors while the old script.js and
+   index.html are still present. They do not add rating points.
 ============================================================ */
 
-/**
- * Generates the complete 4 × 4 environmental matrix.
- *
- * @returns {Array<object>}
- */
-function generateEnvironmentalImpactMatrix() {
-  return EBM_CONSEQUENCE_CRITERIA.map(
-    (consequence) => {
-      return {
-        consequenceValue:
-          consequence.value,
-
-        consequenceName:
-          consequence.name,
-
-        ratings:
-          EBM_OCCURRENCE_CRITERIA.map(
-            (occurrence) => {
-              const score =
-                calculateEnvironmentalImpactRating(
-                  consequence.value,
-                  occurrence.value
-                );
-
-              const category =
-                getEnvironmentalImpactCategory(
-                  score
-                );
-
-              return {
-                occurrenceValue:
-                  occurrence.value,
-
-                occurrenceName:
-                  occurrence.name,
-
-                score,
-
-                level:
-                  category.level,
-
-                classification:
-                  category.classification,
-
-                colorClass:
-                  category.colorClass
-              };
-            }
-          )
-      };
-    }
+function calculateEnvironmentalImpactRating(
+  consequence,
+  occurrence
+) {
+  return (
+    Number(consequence || 0) *
+    Number(occurrence || 0)
   );
+}
+
+function tryCalculateEnvironmentalImpactRating(
+  consequence,
+  occurrence
+) {
+  return {
+    valid: true,
+    score:
+      calculateEnvironmentalImpactRating(
+        consequence,
+        occurrence
+      ),
+    error: null
+  };
+}
+
+function getEnvironmentalImpactCategory() {
+  return {
+    minimum: 0,
+    maximum: 0,
+    level: "Removed",
+    classification:
+      "Not part of Version 2",
+    priority: 0,
+    colorClass: "low",
+    badgeClass: "impact-low",
+    action:
+      "Identify the issue, impact and best corrective action."
+  };
+}
+
+function evaluateEnvironmentalSignificance(
+  score,
+  hasComplianceObligation = false
+) {
+  return {
+    numericalScore:
+      Number(score) || 0,
+
+    baseLevel: "Removed",
+    baseClassification:
+      "Not part of Version 2",
+
+    finalLevel:
+      hasComplianceObligation
+        ? "Compliance Priority"
+        : "Removed",
+
+    finalClassification:
+      hasComplianceObligation
+        ? "Significant"
+        : "Not part of Version 2",
+
+    priority:
+      hasComplianceObligation
+        ? 3
+        : 0,
+
+    isSignificant:
+      hasComplianceObligation,
+
+    isComplianceSignificant:
+      hasComplianceObligation,
+
+    colorClass:
+      hasComplianceObligation
+        ? "high"
+        : "low",
+
+    badgeClass:
+      hasComplianceObligation
+        ? "impact-compliance"
+        : "impact-low",
+
+    action:
+      hasComplianceObligation
+        ? "Apply the approved compliance control."
+        : "Choose the best corrective action.",
+
+    complianceMessage:
+      hasComplianceObligation
+        ? "Compliance obligation identified."
+        : null
+  };
+}
+
+function evaluateEnvironmentalImpact(input) {
+  const score =
+    calculateEnvironmentalImpactRating(
+      input?.consequence,
+      input?.occurrence
+    );
+
+  return {
+    consequence:
+      Number(
+        input?.consequence || 0
+      ),
+
+    occurrence:
+      Number(
+        input?.occurrence || 0
+      ),
+
+    score,
+
+    formula:
+      "Rating removed in Version 2",
+
+    consequenceDetails: null,
+    occurrenceDetails: null,
+
+    ...evaluateEnvironmentalSignificance(
+      score,
+      input?.complianceObligation ===
+        true
+    )
+  };
+}
+
+function comparePlayerImpactRating() {
+  return {
+    playerConsequence: null,
+    playerOccurrence: null,
+    playerScore: 0,
+    playerCategory:
+      getEnvironmentalImpactCategory(),
+
+    expectedConsequence: null,
+    expectedOccurrence: null,
+    expectedScore: 0,
+    expectedCategory:
+      getEnvironmentalImpactCategory(),
+
+    consequenceCorrect: true,
+    occurrenceCorrect: true,
+    exactScoreCorrect: true,
+    categoryCorrect: true,
+    scoreDifference: 0,
+    accuracyLevel: "Removed",
+    fullyCorrect: true
+  };
+}
+
+function scoreRatingSelection() {
+  return {
+    ...comparePlayerImpactRating(),
+
+    points: 0,
+    maximumPoints: 0,
+
+    breakdown: {
+      consequence: 0,
+      occurrence: 0,
+      overallRating: 0
+    }
+  };
+}
+
+function renderLiveEnvironmentalRating() {
+  const categoryBox =
+    document.getElementById(
+      "calculatedImpactCategory"
+    );
+
+  categoryBox?.classList.add(
+    "hidden"
+  );
+
+  return null;
 }
 
 
 /* ============================================================
-   27. SCENARIO DATA VALIDATION
+   19. VALIDATION
 ============================================================ */
 
-/**
- * Validates a scenario rating and scoring structure.
- *
- * @param {object} scenario
- * @returns {{
- *   valid: boolean,
- *   errors: Array<string>,
- *   warnings: Array<string>
- * }}
- */
 function validateEnvironmentalScenario(
   scenario
 ) {
@@ -2544,172 +2304,52 @@ function validateEnvironmentalScenario(
 
   if (!scenario.id) {
     errors.push(
-      "Scenario ID is missing."
+      "Scenario ID is required."
     );
   }
 
-  if (!scenario.title) {
-    errors.push(
-      `Scenario ${scenario.id || "unknown"} does not have a title.`
-    );
-  }
+  const issue =
+    scenario.issue ||
+    scenario.aspect;
 
-  const consequence =
-    scenario.rating?.consequence;
+  const action =
+    scenario.action ||
+    scenario.control;
 
-  const occurrence =
-    scenario.rating?.occurrence;
-
-  if (
-    !isValidEBMRatingValue(
-      consequence
-    )
-  ) {
-    errors.push(
-      `Scenario ${scenario.id || "unknown"} has an invalid consequence rating.`
-    );
-  }
-
-  if (
-    !isValidEBMRatingValue(
-      occurrence
-    )
-  ) {
-    errors.push(
-      `Scenario ${scenario.id || "unknown"} has an invalid occurrence rating.`
-    );
-  }
-
-  if (
-    isValidEBMRatingValue(
-      consequence
-    ) &&
-    isValidEBMRatingValue(
-      occurrence
-    )
-  ) {
-    const calculatedScore =
-      calculateEnvironmentalImpactRating(
-        consequence,
-        occurrence
-      );
-
-    if (
-      Number(
-        scenario.rating?.score
-      ) !== calculatedScore
-    ) {
-      errors.push(
-        `Scenario ${scenario.id} rating mismatch: expected ${calculatedScore}, found ${scenario.rating?.score}.`
-      );
-    }
-
-    const category =
-      getEnvironmentalImpactCategory(
-        calculatedScore
-      );
-
-    if (
-      scenario.rating?.level &&
-      scenario.rating.level !==
-        category.level
-    ) {
-      errors.push(
-        `Scenario ${scenario.id} category mismatch: expected ${category.level}, found ${scenario.rating.level}.`
-      );
-    }
-  }
-
-  const answerGroups = [
-    {
-      name: "aspect",
-      data: scenario.aspect
-    },
-    {
-      name: "impact",
-      data: scenario.impact
-    },
-    {
-      name: "control",
-      data: scenario.control
-    }
-  ];
-
-  answerGroups.forEach(
-    (group) => {
-      if (!group.data?.correct) {
-        errors.push(
-          `Scenario ${scenario.id || "unknown"} does not have a correct ${group.name} answer.`
-        );
-
-        return;
-      }
-
+  [
+    ["issue", issue],
+    ["impact", scenario.impact],
+    ["action", action]
+  ].forEach(
+    ([name, section]) => {
       if (
+        !section ||
         !Array.isArray(
-          group.data.options
+          section.options
+        ) ||
+        !section.options.includes(
+          section.correct
         )
       ) {
         errors.push(
-          `Scenario ${scenario.id || "unknown"} does not contain ${group.name} options.`
-        );
-
-        return;
-      }
-
-      const containsCorrectAnswer =
-        group.data.options.some(
-          (option) =>
-            isCorrectEBMAnswer(
-              option,
-              group.data.correct
-            )
-        );
-
-      if (!containsCorrectAnswer) {
-        errors.push(
-          `Scenario ${scenario.id || "unknown"} is missing the correct ${group.name} answer in its options.`
-        );
-      }
-
-      if (
-        group.data.options.length < 3
-      ) {
-        warnings.push(
-          `Scenario ${scenario.id || "unknown"} has fewer than three ${group.name} options.`
+          `${scenario.id || "Scenario"} has invalid ${name} options.`
         );
       }
     }
   );
 
-  Object.keys(
-    EBM_METRIC_CONFIG
-  ).forEach(
-    (metricId) => {
-      const value =
-        scenario.metrics?.[metricId];
-
-      if (
-        value !== undefined &&
-        (
-          !isFiniteEBMNumber(value) ||
-          Number(value) < 0 ||
-          Number(value) > 100
-        )
-      ) {
-        errors.push(
-          `Scenario ${scenario.id || "unknown"} has an invalid ${metricId} metric value.`
-        );
-      }
-    }
-  );
+  if (!scenario.scene?.image) {
+    warnings.push(
+      `${scenario.id || "Scenario"} does not have a scene image path.`
+    );
+  }
 
   if (
-    scenario.complianceObligation === true &&
-    !scenario.complianceMessage
+    !scenario.reward
+      ?.collectibleId
   ) {
     warnings.push(
-      `Scenario ${scenario.id || "unknown"} has a compliance obligation but no specific compliance message.`
+      `${scenario.id || "Scenario"} does not have a collectible reward.`
     );
   }
 
@@ -2718,69 +2358,34 @@ function validateEnvironmentalScenario(
       errors.length === 0,
 
     errors,
-
     warnings
   };
 }
 
-
-/**
- * Validates all scenarios loaded from gameData.js.
- *
- * @returns {object}
- */
 function validateAllEnvironmentalScenarios() {
-  const areas =
-    window.EBM_GAME_DATA?.areas;
-
-  if (!Array.isArray(areas)) {
-    return {
-      valid: false,
-      scenarioCount: 0,
-      errors: [
-        "EBM_GAME_DATA.areas is not available. Load gameData.js before impactMatrix.js."
-      ],
-      warnings: []
-    };
-  }
+  const scenarios =
+    typeof window !== "undefined" &&
+    typeof window.getAllEBMScenarios ===
+      "function"
+      ? window.getAllEBMScenarios()
+      : [];
 
   const errors = [];
   const warnings = [];
-  let scenarioCount = 0;
 
-  areas.forEach(
-    (area) => {
-      if (
-        !Array.isArray(
-          area.scenarios
-        )
-      ) {
-        errors.push(
-          `Area ${area.id || "unknown"} does not contain a scenario array.`
+  scenarios.forEach(
+    (scenario) => {
+      const result =
+        validateEnvironmentalScenario(
+          scenario
         );
 
-        return;
-      }
+      errors.push(
+        ...result.errors
+      );
 
-      area.scenarios.forEach(
-        (scenario) => {
-          scenarioCount += 1;
-
-          const validation =
-            validateEnvironmentalScenario(
-              scenario
-            );
-
-          validation.errors.forEach(
-            (error) =>
-              errors.push(error)
-          );
-
-          validation.warnings.forEach(
-            (warning) =>
-              warnings.push(warning)
-          );
-        }
+      warnings.push(
+        ...result.warnings
       );
     }
   );
@@ -2789,250 +2394,31 @@ function validateAllEnvironmentalScenarios() {
     valid:
       errors.length === 0,
 
-    scenarioCount,
+    scenarioCount:
+      scenarios.length,
 
     errors,
-
     warnings
   };
 }
 
 
 /* ============================================================
-   28. SCORING STATE FACTORY
-
-   Creates a clean game scoring state for script.js.
-============================================================ */
-
-/**
- * Creates the initial game scoring state.
- *
- * @returns {object}
- */
-function createInitialEnvironmentalScoreState() {
-  const metricState = {};
-
-  Object.keys(
-    EBM_METRIC_CONFIG
-  ).forEach(
-    (metricId) => {
-      metricState[metricId] = {
-        available: 0,
-        earned: 0,
-        percentage: 0
-      };
-    }
-  );
-
-  return {
-    totalScore: 0,
-
-    maximumScore: 0,
-
-    ecoScore: 0,
-
-    completedAreaIds: [],
-
-    completedScenarioIds: [],
-
-    scenarioResults: [],
-
-    areaResults: {},
-
-    metrics: metricState,
-
-    impactCounts: {
-      low: 0,
-      medium: 0,
-      high: 0,
-      compliancePriority: 0,
-      significantTotal: 0
-    },
-
-    commitments: [],
-
-    startedAt:
-      new Date().toISOString(),
-
-    completedAt: null
-  };
-}
-
-
-/* ============================================================
-   29. ADD OR REPLACE SCENARIO RESULT IN GAME STATE
-============================================================ */
-
-/**
- * Adds a completed scenario result or replaces an earlier result
- * for the same scenario.
- *
- * @param {object} scoreState
- * @param {object} scenarioRecord
- * @returns {object}
- */
-function updateEnvironmentalScoreState(
-  scoreState,
-  scenarioRecord
-) {
-  const currentState =
-    scoreState &&
-    typeof scoreState === "object"
-      ? structuredCloneSafe(
-          scoreState
-        )
-      : createInitialEnvironmentalScoreState();
-
-  if (
-    !scenarioRecord ||
-    typeof scenarioRecord !== "object" ||
-    !scenarioRecord.scenarioId
-  ) {
-    throw new TypeError(
-      "A valid scenario record with scenarioId is required."
-    );
-  }
-
-  const existingIndex =
-    currentState.scenarioResults
-      .findIndex(
-        (result) =>
-          result.scenarioId ===
-          scenarioRecord.scenarioId
-      );
-
-  if (existingIndex >= 0) {
-    currentState.scenarioResults[
-      existingIndex
-    ] = {
-      ...scenarioRecord
-    };
-  } else {
-    currentState.scenarioResults.push({
-      ...scenarioRecord
-    });
-  }
-
-  currentState.completedScenarioIds =
-    [
-      ...new Set(
-        currentState.scenarioResults.map(
-          (result) =>
-            result.scenarioId
-        )
-      )
-    ];
-
-  currentState.completedAreaIds =
-    [
-      ...new Set(
-        currentState.scenarioResults
-          .map(
-            (result) =>
-              result.areaId
-          )
-          .filter(Boolean)
-      )
-    ];
-
-  const totalAvailableScenarios =
-    window.getEBMTotalScenarioCount
-      ? window.getEBMTotalScenarioCount()
-      : currentState.scenarioResults.length;
-
-  const overall =
-    calculateOverallEcoScore(
-      currentState.scenarioResults,
-      totalAvailableScenarios
-    );
-
-  currentState.totalScore =
-    overall.totalEarnedPoints;
-
-  currentState.maximumScore =
-    overall.totalAvailablePoints;
-
-  currentState.ecoScore =
-    overall.percentage;
-
-  currentState.metrics =
-    calculateEnvironmentalMetricScores(
-      currentState.scenarioResults
-    );
-
-  currentState.impactCounts =
-    countEnvironmentalImpactCategories(
-      currentState.scenarioResults
-    );
-
-  return currentState;
-}
-
-
-/* ============================================================
-   30. SAFE DEEP CLONE
-============================================================ */
-
-/**
- * Creates a safe deep clone.
- *
- * @param {*} value
- * @returns {*}
- */
-function structuredCloneSafe(value) {
-  if (
-    typeof structuredClone ===
-    "function"
-  ) {
-    return structuredClone(value);
-  }
-
-  return JSON.parse(
-    JSON.stringify(value)
-  );
-}
-
-
-/* ============================================================
-   31. PUBLIC API OBJECT
+   20. PUBLIC API
 ============================================================ */
 
 const EBM_IMPACT_MATRIX = Object.freeze({
   config:
     EBM_IMPACT_MATRIX_CONFIG,
 
-  validMatrixScores:
-    EBM_VALID_MATRIX_SCORES,
-
-  consequenceCriteria:
-    EBM_CONSEQUENCE_CRITERIA,
-
-  occurrenceCriteria:
-    EBM_OCCURRENCE_CRITERIA,
-
   metricConfig:
     EBM_METRIC_CONFIG,
 
-  calculateRating:
-    calculateEnvironmentalImpactRating,
+  collectibleConfig:
+    EBM_COLLECTIBLE_CONFIG,
 
-  tryCalculateRating:
-    tryCalculateEnvironmentalImpactRating,
-
-  getCategory:
-    getEnvironmentalImpactCategory,
-
-  evaluateSignificance:
-    evaluateEnvironmentalSignificance,
-
-  evaluateImpact:
-    evaluateEnvironmentalImpact,
-
-  comparePlayerRating:
-    comparePlayerImpactRating,
-
-  scoreScenario:
-    calculateScenarioScore,
+  scoreIssue:
+    scoreIssueSelection,
 
   scoreAspect:
     scoreAspectSelection,
@@ -3040,11 +2426,25 @@ const EBM_IMPACT_MATRIX = Object.freeze({
   scoreImpact:
     scoreImpactSelection,
 
-  scoreRating:
-    scoreRatingSelection,
+  scoreAction:
+    scoreActionSelection,
 
   scoreControl:
     scoreControlSelection,
+
+  scoreScenario:
+    calculateScenarioScore,
+
+  calculateStreak:
+    calculateEcoStreak,
+
+  createCollectibles:
+    createEmptyCollectibleState,
+
+  awardCollectible:
+    awardScenarioCollectible,
+
+  calculateCollectibleTotal,
 
   calculateScenarioMetricContribution,
 
@@ -3058,8 +2458,12 @@ const EBM_IMPACT_MATRIX = Object.freeze({
   getFinalResultLevel:
     getFinalEcoResultLevel,
 
-  countImpactCategories:
-    countEnvironmentalImpactCategories,
+  getAreaBadge:
+    getAreaCompletionBadge,
+
+  getAreaUnlockState,
+
+  calculateNewlyUnlockedAreas,
 
   generateScenarioFeedback,
 
@@ -3067,14 +2471,14 @@ const EBM_IMPACT_MATRIX = Object.freeze({
 
   generateFinalGameSummary,
 
-  generateMatrix:
-    generateEnvironmentalImpactMatrix,
+  createTimerState:
+    createGameTimerState,
 
-  validateScenario:
-    validateEnvironmentalScenario,
+  calculateRemainingTime:
+    calculateRemainingGameTime,
 
-  validateAllScenarios:
-    validateAllEnvironmentalScenarios,
+  formatTime:
+    formatGameTime,
 
   createInitialScoreState:
     createInitialEnvironmentalScoreState,
@@ -3085,19 +2489,22 @@ const EBM_IMPACT_MATRIX = Object.freeze({
   renderMetricScores:
     renderEnvironmentalMetricScores,
 
-  renderImpactCounts:
-    renderEnvironmentalImpactCounts,
-
-  renderLiveRating:
-    renderLiveEnvironmentalRating,
+  renderCollectibles:
+    renderCollectibleCounts,
 
   renderFinalScoreCircle:
-    renderFinalEcoScoreCircle
+    renderFinalEcoScoreCircle,
+
+  validateScenario:
+    validateEnvironmentalScenario,
+
+  validateAllScenarios:
+    validateAllEnvironmentalScenarios
 });
 
 
 /* ============================================================
-   32. EXPOSE FUNCTIONS TO SCRIPT.JS
+   21. EXPOSE FUNCTIONS TO SCRIPT.JS
 ============================================================ */
 
 if (typeof window !== "undefined") {
@@ -3107,15 +2514,117 @@ if (typeof window !== "undefined") {
   window.EBM_IMPACT_MATRIX_CONFIG =
     EBM_IMPACT_MATRIX_CONFIG;
 
-  window.EBM_CONSEQUENCE_CRITERIA =
-    EBM_CONSEQUENCE_CRITERIA;
-
-  window.EBM_OCCURRENCE_CRITERIA =
-    EBM_OCCURRENCE_CRITERIA;
-
   window.EBM_METRIC_CONFIG =
     EBM_METRIC_CONFIG;
 
+  window.EBM_COLLECTIBLE_CONFIG =
+    EBM_COLLECTIBLE_CONFIG;
+
+  window.normalizeEBMAnswerText =
+    normalizeEBMAnswerText;
+
+  window.isCorrectEBMAnswer =
+    isCorrectEBMAnswer;
+
+  window.scoreIssueSelection =
+    scoreIssueSelection;
+
+  window.scoreAspectSelection =
+    scoreAspectSelection;
+
+  window.scoreImpactSelection =
+    scoreImpactSelection;
+
+  window.scoreActionSelection =
+    scoreActionSelection;
+
+  window.scoreControlSelection =
+    scoreControlSelection;
+
+  window.calculateScenarioScore =
+    calculateScenarioScore;
+
+  window.calculateEcoStreak =
+    calculateEcoStreak;
+
+  window.createEmptyCollectibleState =
+    createEmptyCollectibleState;
+
+  window.awardScenarioCollectible =
+    awardScenarioCollectible;
+
+  window.calculateCollectibleTotal =
+    calculateCollectibleTotal;
+
+  window.calculateScenarioMetricContribution =
+    calculateScenarioMetricContribution;
+
+  window.calculateEnvironmentalMetricScores =
+    calculateEnvironmentalMetricScores;
+
+  window.calculateAreaScore =
+    calculateAreaScore;
+
+  window.calculateOverallEcoScore =
+    calculateOverallEcoScore;
+
+  window.getFinalEcoResultLevel =
+    getFinalEcoResultLevel;
+
+  window.getAreaCompletionBadge =
+    getAreaCompletionBadge;
+
+  window.getAreaUnlockState =
+    getAreaUnlockState;
+
+  window.calculateNewlyUnlockedAreas =
+    calculateNewlyUnlockedAreas;
+
+  window.generateScenarioFeedback =
+    generateScenarioFeedback;
+
+  window.generateAreaCompletionFeedback =
+    generateAreaCompletionFeedback;
+
+  window.generateFinalGameSummary =
+    generateFinalGameSummary;
+
+  window.createGameTimerState =
+    createGameTimerState;
+
+  window.calculateRemainingGameTime =
+    calculateRemainingGameTime;
+
+  window.formatGameTime =
+    formatGameTime;
+
+  window.createInitialEnvironmentalScoreState =
+    createInitialEnvironmentalScoreState;
+
+  window.updateEnvironmentalScoreState =
+    updateEnvironmentalScoreState;
+
+  window.renderEnvironmentalMetricScores =
+    renderEnvironmentalMetricScores;
+
+  window.renderEnvironmentalImpactCounts =
+    renderEnvironmentalImpactCounts;
+
+  window.renderCollectibleCounts =
+    renderCollectibleCounts;
+
+  window.renderFinalEcoScoreCircle =
+    renderFinalEcoScoreCircle;
+
+  window.validateEnvironmentalScenario =
+    validateEnvironmentalScenario;
+
+  window.validateAllEnvironmentalScenarios =
+    validateAllEnvironmentalScenarios;
+
+  /*
+   * Temporary compatibility exports.
+   */
   window.calculateEnvironmentalImpactRating =
     calculateEnvironmentalImpactRating;
 
@@ -3134,79 +2643,19 @@ if (typeof window !== "undefined") {
   window.comparePlayerImpactRating =
     comparePlayerImpactRating;
 
-  window.calculateScenarioScore =
-    calculateScenarioScore;
-
-  window.scoreAspectSelection =
-    scoreAspectSelection;
-
-  window.scoreImpactSelection =
-    scoreImpactSelection;
-
   window.scoreRatingSelection =
     scoreRatingSelection;
-
-  window.scoreControlSelection =
-    scoreControlSelection;
-
-  window.calculateScenarioMetricContribution =
-    calculateScenarioMetricContribution;
-
-  window.calculateEnvironmentalMetricScores =
-    calculateEnvironmentalMetricScores;
-
-  window.calculateAreaScore =
-    calculateAreaScore;
-
-  window.calculateOverallEcoScore =
-    calculateOverallEcoScore;
-
-  window.getFinalEcoResultLevel =
-    getFinalEcoResultLevel;
 
   window.countEnvironmentalImpactCategories =
     countEnvironmentalImpactCategories;
 
-  window.generateScenarioFeedback =
-    generateScenarioFeedback;
-
-  window.generateAreaCompletionFeedback =
-    generateAreaCompletionFeedback;
-
-  window.generateFinalGameSummary =
-    generateFinalGameSummary;
-
-  window.renderEnvironmentalMetricScores =
-    renderEnvironmentalMetricScores;
-
-  window.renderEnvironmentalImpactCounts =
-    renderEnvironmentalImpactCounts;
-
   window.renderLiveEnvironmentalRating =
     renderLiveEnvironmentalRating;
-
-  window.renderFinalEcoScoreCircle =
-    renderFinalEcoScoreCircle;
-
-  window.generateEnvironmentalImpactMatrix =
-    generateEnvironmentalImpactMatrix;
-
-  window.validateEnvironmentalScenario =
-    validateEnvironmentalScenario;
-
-  window.validateAllEnvironmentalScenarios =
-    validateAllEnvironmentalScenarios;
-
-  window.createInitialEnvironmentalScoreState =
-    createInitialEnvironmentalScoreState;
-
-  window.updateEnvironmentalScoreState =
-    updateEnvironmentalScoreState;
 }
 
 
 /* ============================================================
-   33. DEVELOPMENT VALIDATION
+   22. DEVELOPMENT VALIDATION
 ============================================================ */
 
 document.addEventListener(
@@ -3217,12 +2666,12 @@ document.addEventListener(
 
     if (!validation.valid) {
       console.error(
-        "EBM environmental scoring validation failed:",
+        "EBM V2 scoring validation failed:",
         validation.errors
       );
     } else {
       console.info(
-        `EBM environmental scoring logic loaded successfully. ${validation.scenarioCount} scenarios validated.`
+        `EBM Eco Rescue V2 scoring loaded: ${validation.scenarioCount} scenarios using Issue → Impact → Action.`
       );
     }
 
@@ -3230,7 +2679,7 @@ document.addEventListener(
       validation.warnings.length > 0
     ) {
       console.warn(
-        "EBM environmental scoring warnings:",
+        "EBM V2 scoring warnings:",
         validation.warnings
       );
     }
