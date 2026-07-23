@@ -5592,7 +5592,6 @@ function isEditableFactoryTarget(target) {
     target instanceof HTMLInputElement ||
     target instanceof HTMLSelectElement ||
     target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLButtonElement ||
     target?.isContentEditable === true
   );
 }
