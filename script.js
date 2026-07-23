@@ -5587,7 +5587,7 @@ function getFactoryDirectionFromKeyboard(event) {
   return keyMap[key] || null;
 }
 
-ffunction isEditableFactoryTarget(target) {
+function isEditableFactoryTarget(target) {
   return (
     target instanceof HTMLInputElement ||
     target instanceof HTMLSelectElement ||
@@ -6175,19 +6175,6 @@ function activateFactoryNavigation() {
       "Factory navigation activated. Use arrow keys or W A S D."
     );
   });
-}
-
-  window.requestAnimationFrame(
-    () => {
-      restoreFactoryPlayerPosition();
-      renderFactoryHotspotProgress();
-      updateFactoryAreaProximity();
-
-      DOM.factoryMapWrapper.focus({
-        preventScroll: true
-      });
-    }
-  );
 }
 
 function resetFactoryNavigationPosition() {
