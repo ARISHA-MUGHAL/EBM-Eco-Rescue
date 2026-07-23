@@ -717,7 +717,11 @@
 
 
       <!-- =====================================================
-           SCREEN 3: AREA SELECTION
+           SCREEN 3: INTERACTIVE FACTORY EXPLORATION
+
+           This remains id="campusScreen" so it works with the
+           existing game navigation. The movement-enabled script
+           uses the map, player and hotspot IDs below.
       ====================================================== -->
 
       <section
@@ -728,7 +732,7 @@
 
         <div class="screen-container">
 
-          <div class="screen-heading">
+          <div class="screen-heading factory-navigation-heading">
 
             <div>
               <p class="section-kicker">
@@ -736,19 +740,19 @@
               </p>
 
               <h2 id="campusTitle">
-                Select an area to begin
+                Walk through the Eco Campus
               </h2>
 
               <p>
-                Complete the environmental situations in each area to restore
-                the overall Eco Score.
+                Use the arrow keys or W, A, S and D to move. Approach a marked
+                work area and press Enter to investigate its environmental
+                situations. On mobile, use the movement controls below the map.
               </p>
             </div>
 
-
             <div class="player-mini-card">
 
-              <span class="player-avatar" aria-hidden="true">
+              <span class="player-mini-avatar" aria-hidden="true">
                 👤
               </span>
 
@@ -767,51 +771,397 @@
           </div>
 
 
-          <div
-            id="areaCardGrid"
-            class="area-card-grid"
-            aria-live="polite"
-          >
+          <!-- Movement instructions -->
+          <div class="factory-control-strip" aria-label="Factory navigation instructions">
 
-            <!--
-              Area cards will be inserted by script.js using gameData.js.
+            <div class="factory-control-tip">
+              <span aria-hidden="true">⌨️</span>
+              <span><strong>Move:</strong> Arrow keys or W A S D</span>
+            </div>
 
-              Example areas:
-              - Mixing Area
-              - Cutting Area
-              - Packing Area
-              - Laboratory
-              - Offices
-              - Canteen
-              - Kitchen
-              - Car Parking
-              - Utilities
-              - Waste Yard
-              - Washrooms
-              - Green Area
-            -->
+            <div class="factory-control-tip">
+              <span aria-hidden="true">↵</span>
+              <span><strong>Inspect:</strong> Press Enter near an area</span>
+            </div>
+
+            <div class="factory-control-tip">
+              <span aria-hidden="true">🌿</span>
+              <span><strong>Goal:</strong> Restore all 12 areas</span>
+            </div>
 
           </div>
 
 
-          <div class="campus-footer-actions">
+          <!-- Fictional factory exploration map -->
+          <div
+            id="factoryMapWrapper"
+            class="factory-map-wrapper"
+            tabindex="0"
+            role="application"
+            aria-label="Interactive fictional EBM Eco Campus map. Use arrow keys or W A S D to move."
+          >
 
-            <button
-              id="viewScoreDashboardButton"
-              class="secondary-button"
-              type="button"
+            <!--
+              Add your fictional campus artwork at:
+              images/map/factory-map.png
+
+              The fallback map zones remain visible if the image has not
+              yet been uploaded.
+            -->
+            <img
+              id="factoryMapImage"
+              class="factory-map-image"
+              src="images/map/factory-map.png"
+              alt="Illustrated fictional EBM Eco Campus with production, support, utility and green zones."
             >
-              View Eco Dashboard
+
+
+            <!-- Decorative fallback campus surface -->
+            <div class="factory-map-fallback" aria-hidden="true">
+
+              <div class="map-road map-road-horizontal"></div>
+              <div class="map-road map-road-vertical"></div>
+
+              <div class="map-zone production-map-zone">
+                <span>Production Zone</span>
+              </div>
+
+              <div class="map-zone support-map-zone">
+                <span>Support Zone</span>
+              </div>
+
+              <div class="map-zone utility-map-zone">
+                <span>Utilities &amp; Waste</span>
+              </div>
+
+              <div class="map-zone outdoor-map-zone">
+                <span>Outdoor &amp; Nature</span>
+              </div>
+
+            </div>
+
+
+            <!-- Player character -->
+            <div
+              id="playerAvatar"
+              class="factory-player-avatar"
+              style="left: 8%; top: 82%;"
+              aria-label="Your Eco Officer"
+            >
+              <span class="player-shadow" aria-hidden="true"></span>
+
+              <span class="player-character" aria-hidden="true">
+                🧑‍🔧
+              </span>
+
+              <span class="player-name-tag">
+                You
+              </span>
+            </div>
+
+
+            <!-- Production areas -->
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="mixing-area"
+              style="left: 13%; top: 20%;"
+              aria-label="Enter Mixing Area"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🥣</span>
+              <span class="hotspot-label">Mixing</span>
+              <span class="hotspot-status">0/3</span>
             </button>
 
             <button
-              id="continueToCommitmentsButton"
-              class="primary-button hidden"
+              class="area-hotspot"
               type="button"
+              data-area-id="cutting-area"
+              style="left: 31%; top: 20%;"
+              aria-label="Enter Cutting Area"
             >
-              Continue to Commitments
-              <span aria-hidden="true">→</span>
+              <span class="hotspot-icon" aria-hidden="true">🍪</span>
+              <span class="hotspot-label">Cutting</span>
+              <span class="hotspot-status">0/3</span>
             </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="packing-area"
+              style="left: 49%; top: 20%;"
+              aria-label="Enter Packing Area"
+            >
+              <span class="hotspot-icon" aria-hidden="true">📦</span>
+              <span class="hotspot-label">Packing</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+
+            <!-- Quality and administrative areas -->
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="laboratory"
+              style="left: 68%; top: 18%;"
+              aria-label="Enter Laboratory"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🧪</span>
+              <span class="hotspot-label">Laboratory</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="offices"
+              style="left: 86%; top: 20%;"
+              aria-label="Enter Offices"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🏢</span>
+              <span class="hotspot-label">Offices</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+
+            <!-- Employee service areas -->
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="canteen"
+              style="left: 80%; top: 45%;"
+              aria-label="Enter Canteen"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🍽️</span>
+              <span class="hotspot-label">Canteen</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="kitchen"
+              style="left: 61%; top: 45%;"
+              aria-label="Enter Kitchen"
+            >
+              <span class="hotspot-icon" aria-hidden="true">👨‍🍳</span>
+              <span class="hotspot-label">Kitchen</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="washrooms"
+              style="left: 90%; top: 66%;"
+              aria-label="Enter Washrooms"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🚻</span>
+              <span class="hotspot-label">Washrooms</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+
+            <!-- Utility and waste areas -->
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="utilities"
+              style="left: 38%; top: 67%;"
+              aria-label="Enter Utilities"
+            >
+              <span class="hotspot-icon" aria-hidden="true">⚙️</span>
+              <span class="hotspot-label">Utilities</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="waste-yard"
+              style="left: 57%; top: 72%;"
+              aria-label="Enter Waste Yard"
+            >
+              <span class="hotspot-icon" aria-hidden="true">♻️</span>
+              <span class="hotspot-label">Waste Yard</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+
+            <!-- Outdoor areas -->
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="car-parking"
+              style="left: 17%; top: 67%;"
+              aria-label="Enter Car Parking"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🚗</span>
+              <span class="hotspot-label">Car Parking</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+            <button
+              class="area-hotspot"
+              type="button"
+              data-area-id="green-area"
+              style="left: 76%; top: 82%;"
+              aria-label="Enter Green Area"
+            >
+              <span class="hotspot-icon" aria-hidden="true">🌳</span>
+              <span class="hotspot-label">Green Area</span>
+              <span class="hotspot-status">0/3</span>
+            </button>
+
+
+            <!-- Nearby interaction prompt -->
+            <div
+              id="areaInteractionPrompt"
+              class="area-interaction-prompt hidden"
+              role="status"
+              aria-live="polite"
+            >
+              <span aria-hidden="true">↵</span>
+
+              <span>
+                Press <strong>Enter</strong> to inspect
+                <strong id="nearbyAreaName">this area</strong>
+              </span>
+            </div>
+
+          </div>
+
+
+          <!-- Mobile movement controls -->
+          <div
+            id="mobileMovementControls"
+            class="mobile-movement-controls"
+            aria-label="Mobile player movement controls"
+          >
+
+            <button
+              class="movement-button movement-up"
+              type="button"
+              data-movement="up"
+              aria-label="Move up"
+            >
+              ▲
+            </button>
+
+            <button
+              class="movement-button movement-left"
+              type="button"
+              data-movement="left"
+              aria-label="Move left"
+            >
+              ◀
+            </button>
+
+            <button
+              class="movement-button movement-action"
+              type="button"
+              data-movement="action"
+              aria-label="Inspect nearby area"
+            >
+              Enter
+            </button>
+
+            <button
+              class="movement-button movement-right"
+              type="button"
+              data-movement="right"
+              aria-label="Move right"
+            >
+              ▶
+            </button>
+
+            <button
+              class="movement-button movement-down"
+              type="button"
+              data-movement="down"
+              aria-label="Move down"
+            >
+              ▼
+            </button>
+
+          </div>
+
+
+          <!-- Map status and actions -->
+          <div class="factory-map-footer">
+
+            <div class="factory-location-status">
+              <span aria-hidden="true">📍</span>
+
+              <span>
+                Current location:
+                <strong id="currentMapLocation">Campus Entrance</strong>
+              </span>
+            </div>
+
+            <div class="campus-footer-actions">
+
+              <button
+                id="viewAreaListButton"
+                class="secondary-button"
+                type="button"
+              >
+                View Area List
+              </button>
+
+              <button
+                id="viewScoreDashboardButton"
+                class="secondary-button"
+                type="button"
+              >
+                View Eco Dashboard
+              </button>
+
+              <button
+                id="continueToCommitmentsButton"
+                class="primary-button hidden"
+                type="button"
+              >
+                Continue to Commitments
+                <span aria-hidden="true">→</span>
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <!-- Accessible/clickable area-card fallback -->
+          <div
+            id="areaListPanel"
+            class="area-list-panel hidden"
+          >
+
+            <div class="area-list-panel-header">
+
+              <div>
+                <p class="section-kicker">Area Directory</p>
+                <h3>Choose an area directly</h3>
+              </div>
+
+              <button
+                id="closeAreaListButton"
+                class="icon-button"
+                type="button"
+                aria-label="Close area directory"
+              >
+                ×
+              </button>
+
+            </div>
+
+            <div
+              id="areaCardGrid"
+              class="area-card-grid"
+              aria-live="polite"
+            >
+              <!-- Area cards inserted by script.js using gameData.js -->
+            </div>
 
           </div>
 
