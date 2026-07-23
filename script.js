@@ -5508,3 +5508,917 @@ document.addEventListener(
   "DOMContentLoaded",
   initializeEBMEcoRescue
 );
+
+
+/* ============================================================
+   43. FICTIONAL FACTORY EXPLORATION AND PLAYER MOVEMENT
+============================================================ */
+
+const EBM_FACTORY_NAVIGATION_CONFIG = Object.freeze({
+  startXPercent: 8,
+  startYPercent: 82,
+  keyboardSpeed: 4.6,
+  mobileStep: 18,
+  playerPadding: 28,
+  collisionDistance: 78,
+  interactionDistance: 62,
+  movementFrameInterval: 16,
+  positionSaveDelay: 250
+});
+
+const factoryNavigationState = {
+  initialized: false,
+  animationFrameId: null,
+  previousFrameTime: 0,
+  positionSaveTimer: null,
+  nearbyAreaId: null,
+  pressedDirections: new Set(),
+  position: {
+    x: 0,
+    y: 0
+  }
+};
+
+function isFactoryNavigationActive() {
+  return (
+    gameState.currentScreenId === "campusScreen" &&
+    DOM.factoryMapWrapper instanceof HTMLElement &&
+    DOM.factoryPlayerAvatar instanceof HTMLElement
+  );
+}
+
+function cacheFactoryNavigationElements() {
+  DOM.factoryMapWrapper = byId("factoryMapWrapper");
+  DOM.factoryMapImage = byId("factoryMapImage");
+  DOM.factoryPlayerAvatar = byId("playerAvatar");
+  DOM.areaInteractionPrompt = byId("areaInteractionPrompt");
+  DOM.nearbyAreaName = byId("nearbyAreaName");
+  DOM.mobileMovementControls = byId("mobileMovementControls");
+
+  DOM.factoryAreaHotspots = Array.from(
+    document.querySelectorAll(
+      "#factoryMapWrapper .area-hotspot[data-area-id]"
+    )
+  );
+
+  DOM.movementButtons = Array.from(
+    document.querySelectorAll(
+      "#mobileMovementControls [data-movement]"
+    )
+  );
+}
+
+function getFactoryDirectionFromKeyboard(event) {
+  const key = String(event.key || "").toLowerCase();
+
+  const keyMap = {
+    arrowup: "up",
+    w: "up",
+    arrowdown: "down",
+    s: "down",
+    arrowleft: "left",
+    a: "left",
+    arrowright: "right",
+    d: "right",
+    enter: "action",
+    " ": "action"
+  };
+
+  return keyMap[key] || null;
+}
+
+function isEditableFactoryTarget(target) {
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLSelectElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLButtonElement ||
+    target?.isContentEditable === true
+  );
+}
+
+function restoreFactoryPlayerPosition() {
+  const map = DOM.factoryMapWrapper;
+
+  if (!map) {
+    return;
+  }
+
+  const bounds = map.getBoundingClientRect();
+
+  const storedPosition =
+    gameState.factoryPlayerPosition &&
+    typeof gameState.factoryPlayerPosition === "object"
+      ? gameState.factoryPlayerPosition
+      : {
+          xPercent:
+            EBM_FACTORY_NAVIGATION_CONFIG.startXPercent,
+
+          yPercent:
+            EBM_FACTORY_NAVIGATION_CONFIG.startYPercent
+        };
+
+  const safeXPercent = Math.max(
+    0,
+    Math.min(
+      100,
+      Number(storedPosition.xPercent) ||
+        EBM_FACTORY_NAVIGATION_CONFIG.startXPercent
+    )
+  );
+
+  const safeYPercent = Math.max(
+    0,
+    Math.min(
+      100,
+      Number(storedPosition.yPercent) ||
+        EBM_FACTORY_NAVIGATION_CONFIG.startYPercent
+    )
+  );
+
+  factoryNavigationState.position.x =
+    (safeXPercent / 100) * bounds.width;
+
+  factoryNavigationState.position.y =
+    (safeYPercent / 100) * bounds.height;
+
+  constrainFactoryPlayerPosition();
+  renderFactoryPlayerPosition();
+}
+
+function saveFactoryPlayerPosition() {
+  const map = DOM.factoryMapWrapper;
+
+  if (!map) {
+    return;
+  }
+
+  const width = Math.max(map.clientWidth, 1);
+  const height = Math.max(map.clientHeight, 1);
+
+  gameState.factoryPlayerPosition = {
+    xPercent: Number(
+      (
+        (factoryNavigationState.position.x / width) *
+        100
+      ).toFixed(3)
+    ),
+
+    yPercent: Number(
+      (
+        (factoryNavigationState.position.y / height) *
+        100
+      ).toFixed(3)
+    )
+  };
+
+  saveGameState();
+}
+
+function scheduleFactoryPositionSave() {
+  window.clearTimeout(
+    factoryNavigationState.positionSaveTimer
+  );
+
+  factoryNavigationState.positionSaveTimer =
+    window.setTimeout(
+      saveFactoryPlayerPosition,
+      EBM_FACTORY_NAVIGATION_CONFIG.positionSaveDelay
+    );
+}
+
+function constrainFactoryPlayerPosition() {
+  const map = DOM.factoryMapWrapper;
+
+  if (!map) {
+    return;
+  }
+
+  const padding =
+    EBM_FACTORY_NAVIGATION_CONFIG.playerPadding;
+
+  const maximumX = Math.max(
+    padding,
+    map.clientWidth - padding
+  );
+
+  const maximumY = Math.max(
+    padding,
+    map.clientHeight - padding
+  );
+
+  factoryNavigationState.position.x = Math.max(
+    padding,
+    Math.min(
+      maximumX,
+      factoryNavigationState.position.x
+    )
+  );
+
+  factoryNavigationState.position.y = Math.max(
+    padding,
+    Math.min(
+      maximumY,
+      factoryNavigationState.position.y
+    )
+  );
+}
+
+function renderFactoryPlayerPosition() {
+  const player = DOM.factoryPlayerAvatar;
+
+  if (!player) {
+    return;
+  }
+
+  player.style.left =
+    `${factoryNavigationState.position.x}px`;
+
+  player.style.top =
+    `${factoryNavigationState.position.y}px`;
+}
+
+function getFactoryHotspotCenter(hotspot) {
+  const map = DOM.factoryMapWrapper;
+
+  if (!map) {
+    return {
+      x: 0,
+      y: 0
+    };
+  }
+
+  const mapBounds = map.getBoundingClientRect();
+  const hotspotBounds = hotspot.getBoundingClientRect();
+
+  return {
+    x:
+      hotspotBounds.left -
+      mapBounds.left +
+      hotspotBounds.width / 2,
+
+    y:
+      hotspotBounds.top -
+      mapBounds.top +
+      hotspotBounds.height / 2
+  };
+}
+
+function findClosestFactoryHotspot() {
+  let closestHotspot = null;
+  let closestAreaId = null;
+  let closestDistance = Infinity;
+
+  DOM.factoryAreaHotspots.forEach(
+    (hotspot) => {
+      const center =
+        getFactoryHotspotCenter(hotspot);
+
+      const distance = Math.hypot(
+        factoryNavigationState.position.x -
+          center.x,
+
+        factoryNavigationState.position.y -
+          center.y
+      );
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestHotspot = hotspot;
+        closestAreaId =
+          hotspot.dataset.areaId || null;
+      }
+    }
+  );
+
+  return {
+    hotspot: closestHotspot,
+    areaId: closestAreaId,
+    distance: closestDistance
+  };
+}
+
+function updateFactoryAreaProximity() {
+  const closest = findClosestFactoryHotspot();
+
+  DOM.factoryAreaHotspots.forEach(
+    (hotspot) => {
+      const isNearby =
+        hotspot === closest.hotspot &&
+        closest.distance <=
+          EBM_FACTORY_NAVIGATION_CONFIG.collisionDistance;
+
+      hotspot.classList.toggle(
+        "active-hotspot",
+        isNearby
+      );
+
+      if (isNearby) {
+        hotspot.dataset.nearby = "true";
+      } else {
+        delete hotspot.dataset.nearby;
+      }
+    }
+  );
+
+  const canInteract =
+    Boolean(closest.areaId) &&
+    closest.distance <=
+      EBM_FACTORY_NAVIGATION_CONFIG.interactionDistance;
+
+  factoryNavigationState.nearbyAreaId =
+    canInteract
+      ? closest.areaId
+      : null;
+
+  if (DOM.areaInteractionPrompt) {
+    DOM.areaInteractionPrompt.classList.toggle(
+      "hidden",
+      !canInteract
+    );
+  }
+
+  if (canInteract && DOM.nearbyAreaName) {
+    const area = getAreaById(closest.areaId);
+
+    DOM.nearbyAreaName.textContent =
+      area?.name ||
+      closest.hotspot
+        ?.querySelector(".hotspot-label")
+        ?.textContent ||
+      "this area";
+  }
+}
+
+function moveFactoryPlayerBy(deltaX, deltaY) {
+  if (!isFactoryNavigationActive()) {
+    return;
+  }
+
+  factoryNavigationState.position.x +=
+    Number(deltaX) || 0;
+
+  factoryNavigationState.position.y +=
+    Number(deltaY) || 0;
+
+  constrainFactoryPlayerPosition();
+
+  if (DOM.factoryPlayerAvatar) {
+    DOM.factoryPlayerAvatar.classList.add(
+      "is-moving"
+    );
+
+    if (deltaX < 0) {
+      DOM.factoryPlayerAvatar.classList.add(
+        "facing-left"
+      );
+    } else if (deltaX > 0) {
+      DOM.factoryPlayerAvatar.classList.remove(
+        "facing-left"
+      );
+    }
+  }
+
+  renderFactoryPlayerPosition();
+  updateFactoryAreaProximity();
+  scheduleFactoryPositionSave();
+}
+
+function stopFactoryPlayerWalking() {
+  if (
+    factoryNavigationState.pressedDirections
+      .size === 0
+  ) {
+    DOM.factoryPlayerAvatar
+      ?.classList.remove(
+        "is-moving"
+      );
+  }
+}
+
+function inspectNearbyFactoryArea() {
+  const areaId =
+    factoryNavigationState.nearbyAreaId;
+
+  if (!areaId) {
+    showToast(
+      "Move closer to a marked work area before inspecting it.",
+      "info"
+    );
+
+    return;
+  }
+
+  playSound("click");
+  openAreaIntroduction(areaId);
+}
+
+function handleFactoryKeyDown(event) {
+  if (
+    !isFactoryNavigationActive() ||
+    isEditableFactoryTarget(event.target)
+  ) {
+    return;
+  }
+
+  const direction =
+    getFactoryDirectionFromKeyboard(event);
+
+  if (!direction) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (direction === "action") {
+    if (!event.repeat) {
+      inspectNearbyFactoryArea();
+    }
+
+    return;
+  }
+
+  factoryNavigationState
+    .pressedDirections
+    .add(direction);
+}
+
+function handleFactoryKeyUp(event) {
+  const direction =
+    getFactoryDirectionFromKeyboard(event);
+
+  if (
+    !direction ||
+    direction === "action"
+  ) {
+    return;
+  }
+
+  factoryNavigationState
+    .pressedDirections
+    .delete(direction);
+
+  stopFactoryPlayerWalking();
+}
+
+function runFactoryMovementFrame(timestamp) {
+  const elapsed =
+    factoryNavigationState.previousFrameTime
+      ? Math.min(
+          32,
+          timestamp -
+            factoryNavigationState.previousFrameTime
+        )
+      : EBM_FACTORY_NAVIGATION_CONFIG
+          .movementFrameInterval;
+
+  factoryNavigationState.previousFrameTime =
+    timestamp;
+
+  if (
+    isFactoryNavigationActive() &&
+    factoryNavigationState
+      .pressedDirections.size > 0
+  ) {
+    const speed =
+      EBM_FACTORY_NAVIGATION_CONFIG
+        .keyboardSpeed *
+      (
+        elapsed /
+        EBM_FACTORY_NAVIGATION_CONFIG
+          .movementFrameInterval
+      );
+
+    let deltaX = 0;
+    let deltaY = 0;
+
+    if (
+      factoryNavigationState
+        .pressedDirections.has("up")
+    ) {
+      deltaY -= speed;
+    }
+
+    if (
+      factoryNavigationState
+        .pressedDirections.has("down")
+    ) {
+      deltaY += speed;
+    }
+
+    if (
+      factoryNavigationState
+        .pressedDirections.has("left")
+    ) {
+      deltaX -= speed;
+    }
+
+    if (
+      factoryNavigationState
+        .pressedDirections.has("right")
+    ) {
+      deltaX += speed;
+    }
+
+    if (deltaX !== 0 && deltaY !== 0) {
+      deltaX *= Math.SQRT1_2;
+      deltaY *= Math.SQRT1_2;
+    }
+
+    moveFactoryPlayerBy(
+      deltaX,
+      deltaY
+    );
+  }
+
+  factoryNavigationState.animationFrameId =
+    window.requestAnimationFrame(
+      runFactoryMovementFrame
+    );
+}
+
+function handleFactoryMobileMovement(direction) {
+  const step =
+    EBM_FACTORY_NAVIGATION_CONFIG.mobileStep;
+
+  const movementMap = {
+    up: [0, -step],
+    down: [0, step],
+    left: [-step, 0],
+    right: [step, 0]
+  };
+
+  if (direction === "action") {
+    inspectNearbyFactoryArea();
+    return;
+  }
+
+  const movement = movementMap[direction];
+
+  if (!movement) {
+    return;
+  }
+
+  moveFactoryPlayerBy(
+    movement[0],
+    movement[1]
+  );
+
+  window.setTimeout(
+    () => {
+      DOM.factoryPlayerAvatar
+        ?.classList.remove(
+          "is-moving"
+        );
+    },
+    180
+  );
+}
+
+function renderFactoryHotspotProgress() {
+  DOM.factoryAreaHotspots.forEach(
+    (hotspot) => {
+      const areaId = hotspot.dataset.areaId;
+      const area = getAreaById(areaId);
+
+      if (!area) {
+        hotspot.disabled = true;
+        hotspot.setAttribute(
+          "aria-disabled",
+          "true"
+        );
+        return;
+      }
+
+      const progress = getAreaProgress(area);
+
+      const statusElement =
+        hotspot.querySelector(
+          ".hotspot-status"
+        );
+
+      if (statusElement) {
+        statusElement.textContent =
+          `${progress.completedCount}/${progress.totalCount}`;
+      }
+
+      hotspot.classList.toggle(
+        "completed",
+        progress.completed
+      );
+
+      hotspot.dataset.completed =
+        String(progress.completed);
+
+      hotspot.setAttribute(
+        "aria-label",
+        progress.completed
+          ? `Replay ${area.name}. ${progress.completedCount} of ${progress.totalCount} situations completed.`
+          : `Enter ${area.name}. ${progress.completedCount} of ${progress.totalCount} situations completed.`
+      );
+    }
+  );
+}
+
+function configureFactoryMapArtwork() {
+  const image = DOM.factoryMapImage;
+
+  if (!image) {
+    return;
+  }
+
+  const showFallback = () => {
+    image.classList.add("hidden");
+  };
+
+  if (image.complete) {
+    if (image.naturalWidth === 0) {
+      showFallback();
+    }
+  } else {
+    image.addEventListener(
+      "error",
+      showFallback,
+      {
+        once: true
+      }
+    );
+  }
+}
+
+function activateFactoryNavigation() {
+  if (
+    !DOM.factoryMapWrapper ||
+    !DOM.factoryPlayerAvatar
+  ) {
+    return;
+  }
+
+  window.requestAnimationFrame(
+    () => {
+      restoreFactoryPlayerPosition();
+      renderFactoryHotspotProgress();
+      updateFactoryAreaProximity();
+
+      DOM.factoryMapWrapper.focus({
+        preventScroll: true
+      });
+    }
+  );
+}
+
+function resetFactoryNavigationPosition() {
+  gameState.factoryPlayerPosition = {
+    xPercent:
+      EBM_FACTORY_NAVIGATION_CONFIG.startXPercent,
+
+    yPercent:
+      EBM_FACTORY_NAVIGATION_CONFIG.startYPercent
+  };
+
+  factoryNavigationState.nearbyAreaId = null;
+
+  factoryNavigationState
+    .pressedDirections.clear();
+
+  restoreFactoryPlayerPosition();
+  updateFactoryAreaProximity();
+}
+
+function initializeFactoryNavigation() {
+  if (factoryNavigationState.initialized) {
+    return;
+  }
+
+  cacheFactoryNavigationElements();
+
+  if (
+    !DOM.factoryMapWrapper ||
+    !DOM.factoryPlayerAvatar
+  ) {
+    console.warn(
+      "The movement-enabled factory map was not found in index.html."
+    );
+
+    return;
+  }
+
+  factoryNavigationState.initialized = true;
+
+  configureFactoryMapArtwork();
+
+  document.addEventListener(
+    "keydown",
+    handleFactoryKeyDown
+  );
+
+  document.addEventListener(
+    "keyup",
+    handleFactoryKeyUp
+  );
+
+  window.addEventListener(
+    "blur",
+    () => {
+      factoryNavigationState
+        .pressedDirections.clear();
+
+      stopFactoryPlayerWalking();
+    }
+  );
+
+  window.addEventListener(
+    "resize",
+    () => {
+      if (isFactoryNavigationActive()) {
+        restoreFactoryPlayerPosition();
+        updateFactoryAreaProximity();
+      }
+    }
+  );
+
+  DOM.factoryMapWrapper.addEventListener(
+    "click",
+    () => {
+      DOM.factoryMapWrapper.focus({
+        preventScroll: true
+      });
+    }
+  );
+
+  DOM.factoryAreaHotspots.forEach(
+    (hotspot) => {
+      hotspot.addEventListener(
+        "click",
+        (event) => {
+          event.stopPropagation();
+
+          const areaId =
+            hotspot.dataset.areaId;
+
+          if (areaId) {
+            playSound("click");
+            openAreaIntroduction(areaId);
+          }
+        }
+      );
+    }
+  );
+
+  DOM.movementButtons.forEach(
+    (button) => {
+      const direction =
+        button.dataset.movement;
+
+      button.addEventListener(
+        "click",
+        () => {
+          handleFactoryMobileMovement(
+            direction
+          );
+        }
+      );
+
+      button.addEventListener(
+        "pointerdown",
+        () => {
+          button.classList.add("pressed");
+        }
+      );
+
+      [
+        "pointerup",
+        "pointercancel",
+        "pointerleave"
+      ].forEach(
+        (eventName) => {
+          button.addEventListener(
+            eventName,
+            () => {
+              button.classList.remove(
+                "pressed"
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+  if (!gameState.factoryPlayerPosition) {
+    gameState.factoryPlayerPosition = {
+      xPercent:
+        EBM_FACTORY_NAVIGATION_CONFIG.startXPercent,
+
+      yPercent:
+        EBM_FACTORY_NAVIGATION_CONFIG.startYPercent
+    };
+  }
+
+  if (
+    factoryNavigationState.animationFrameId ===
+    null
+  ) {
+    factoryNavigationState.animationFrameId =
+      window.requestAnimationFrame(
+        runFactoryMovementFrame
+      );
+  }
+
+  renderFactoryHotspotProgress();
+
+  console.info(
+    "EBM fictional factory exploration controls initialized."
+  );
+}
+
+
+/* ============================================================
+   44. INTEGRATION WITH THE EXISTING GAME FLOW
+============================================================ */
+
+const showScreenWithoutFactoryNavigation =
+  showScreen;
+
+showScreen = function showScreenWithFactoryNavigation(
+  screenId,
+  scrollToTop = true
+) {
+  showScreenWithoutFactoryNavigation(
+    screenId,
+    scrollToTop
+  );
+
+  if (screenId === "campusScreen") {
+    activateFactoryNavigation();
+  } else {
+    factoryNavigationState
+      .pressedDirections.clear();
+
+    stopFactoryPlayerWalking();
+  }
+};
+
+const renderAreaCardsWithoutFactoryProgress =
+  renderAreaCards;
+
+renderAreaCards = function renderAreaCardsWithFactoryProgress() {
+  renderAreaCardsWithoutFactoryProgress();
+
+  if (factoryNavigationState.initialized) {
+    renderFactoryHotspotProgress();
+  }
+};
+
+const renderPlayerInformationWithoutFactoryName =
+  renderPlayerInformation;
+
+renderPlayerInformation = function renderPlayerInformationWithFactoryName() {
+  renderPlayerInformationWithoutFactoryName();
+
+  const nameTag =
+    DOM.factoryPlayerAvatar
+      ?.querySelector(
+        ".player-name-tag"
+      );
+
+  if (nameTag) {
+    const firstName =
+      String(
+        gameState.player.employeeName ||
+        "You"
+      )
+        .trim()
+        .split(/\s+/)[0];
+
+    nameTag.textContent =
+      firstName || "You";
+  }
+};
+
+const restartGameWithoutFactoryReset =
+  restartGame;
+
+restartGame = function restartGameWithFactoryReset() {
+  restartGameWithoutFactoryReset();
+
+  if (factoryNavigationState.initialized) {
+    resetFactoryNavigationPosition();
+    renderFactoryHotspotProgress();
+  }
+};
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    initializeFactoryNavigation();
+    renderPlayerInformation();
+
+    if (
+      gameState.currentScreenId ===
+      "campusScreen"
+    ) {
+      activateFactoryNavigation();
+    }
+  }
+);
