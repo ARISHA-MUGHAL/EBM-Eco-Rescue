@@ -5587,7 +5587,7 @@ function getFactoryDirectionFromKeyboard(event) {
   return keyMap[key] || null;
 }
 
-function isEditableFactoryTarget(target) {
+ffunction isEditableFactoryTarget(target) {
   return (
     target instanceof HTMLInputElement ||
     target instanceof HTMLSelectElement ||
@@ -6150,8 +6150,32 @@ function activateFactoryNavigation() {
     !DOM.factoryMapWrapper ||
     !DOM.factoryPlayerAvatar
   ) {
+    console.error(
+      "Factory map or player avatar was not found."
+    );
+
     return;
   }
+
+  window.requestAnimationFrame(() => {
+    restoreFactoryPlayerPosition();
+    renderFactoryHotspotProgress();
+    updateFactoryAreaProximity();
+
+    DOM.factoryMapWrapper.setAttribute(
+      "tabindex",
+      "0"
+    );
+
+    DOM.factoryMapWrapper.focus({
+      preventScroll: true
+    });
+
+    console.log(
+      "Factory navigation activated. Use arrow keys or W A S D."
+    );
+  });
+}
 
   window.requestAnimationFrame(
     () => {
@@ -6204,6 +6228,25 @@ function initializeFactoryNavigation() {
 
   factoryNavigationState.initialized = true;
 
+  /*
+   * Make the map keyboard-focusable even if tabindex
+   * was accidentally omitted from index.html.
+   */
+  DOM.factoryMapWrapper.setAttribute(
+    "tabindex",
+    "0"
+  );
+
+  DOM.factoryMapWrapper.setAttribute(
+    "role",
+    "application"
+  );
+
+  DOM.factoryMapWrapper.setAttribute(
+    "aria-label",
+    "Fictional EBM factory exploration map. Use arrow keys or W A S D to move and press Enter to inspect an area."
+  );
+
   configureFactoryMapArtwork();
 
   document.addEventListener(
@@ -6220,7 +6263,8 @@ function initializeFactoryNavigation() {
     "blur",
     () => {
       factoryNavigationState
-        .pressedDirections.clear();
+        .pressedDirections
+        .clear();
 
       stopFactoryPlayerWalking();
     }
@@ -6229,10 +6273,24 @@ function initializeFactoryNavigation() {
   window.addEventListener(
     "resize",
     () => {
-      if (isFactoryNavigationActive()) {
+      if (
+        isFactoryNavigationActive()
+      ) {
         restoreFactoryPlayerPosition();
         updateFactoryAreaProximity();
       }
+    }
+  );
+
+  /*
+   * Focus the map whenever the user clicks or taps inside it.
+   */
+  DOM.factoryMapWrapper.addEventListener(
+    "pointerdown",
+    () => {
+      DOM.factoryMapWrapper.focus({
+        preventScroll: true
+      });
     }
   );
 
@@ -6245,6 +6303,9 @@ function initializeFactoryNavigation() {
     }
   );
 
+  /*
+   * Open a work area directly when its hotspot is clicked.
+   */
   DOM.factoryAreaHotspots.forEach(
     (hotspot) => {
       hotspot.addEventListener(
@@ -6257,13 +6318,19 @@ function initializeFactoryNavigation() {
 
           if (areaId) {
             playSound("click");
-            openAreaIntroduction(areaId);
+
+            openAreaIntroduction(
+              areaId
+            );
           }
         }
       );
     }
   );
 
+  /*
+   * Connect mobile movement buttons.
+   */
   DOM.movementButtons.forEach(
     (button) => {
       const direction =
@@ -6275,13 +6342,19 @@ function initializeFactoryNavigation() {
           handleFactoryMobileMovement(
             direction
           );
+
+          DOM.factoryMapWrapper.focus({
+            preventScroll: true
+          });
         }
       );
 
       button.addEventListener(
         "pointerdown",
         () => {
-          button.classList.add("pressed");
+          button.classList.add(
+            "pressed"
+          );
         }
       );
 
@@ -6304,16 +6377,26 @@ function initializeFactoryNavigation() {
     }
   );
 
-  if (!gameState.factoryPlayerPosition) {
+  /*
+   * Add a starting map position for new or older saved sessions.
+   */
+  if (
+    !gameState.factoryPlayerPosition
+  ) {
     gameState.factoryPlayerPosition = {
       xPercent:
-        EBM_FACTORY_NAVIGATION_CONFIG.startXPercent,
+        EBM_FACTORY_NAVIGATION_CONFIG
+          .startXPercent,
 
       yPercent:
-        EBM_FACTORY_NAVIGATION_CONFIG.startYPercent
+        EBM_FACTORY_NAVIGATION_CONFIG
+          .startYPercent
     };
   }
 
+  /*
+   * Start the continuous movement loop.
+   */
   if (
     factoryNavigationState.animationFrameId ===
     null
@@ -6324,13 +6407,23 @@ function initializeFactoryNavigation() {
       );
   }
 
+  restoreFactoryPlayerPosition();
   renderFactoryHotspotProgress();
+  updateFactoryAreaProximity();
+
+  window.setTimeout(
+    () => {
+      DOM.factoryMapWrapper.focus({
+        preventScroll: true
+      });
+    },
+    100
+  );
 
   console.info(
     "EBM fictional factory exploration controls initialized."
   );
 }
-
 
 /* ============================================================
    44. INTEGRATION WITH THE EXISTING GAME FLOW
