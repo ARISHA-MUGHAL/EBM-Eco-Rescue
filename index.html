@@ -81,7 +81,7 @@
           </h1>
 
           <p class="brand-tagline">
-            Every Area. Every Action. Every Drop.
+            Find it. Fix it. Protect it.
           </p>
         </div>
 
@@ -171,6 +171,47 @@
       </div>
 
 
+
+      <div class="mission-hud" aria-label="Mission rewards and status">
+
+        <div class="mission-hud-item timer-hud">
+          <span aria-hidden="true">⏱️</span>
+          <span>Time</span>
+          <strong id="gameTimerDisplay">08:00</strong>
+        </div>
+
+        <div class="mission-hud-item streak-hud">
+          <span aria-hidden="true">🔥</span>
+          <span>Eco Streak</span>
+          <strong id="ecoStreakDisplay">×0</strong>
+        </div>
+
+        <div class="collectible-hud" aria-label="Collected rewards">
+
+          <div class="collectible-hud-item">
+            <span aria-hidden="true">💧</span>
+            <strong data-collectible-count="waterDrop">0</strong>
+          </div>
+
+          <div class="collectible-hud-item">
+            <span aria-hidden="true">🍃</span>
+            <strong data-collectible-count="greenLeaf">0</strong>
+          </div>
+
+          <div class="collectible-hud-item">
+            <span aria-hidden="true">♻️</span>
+            <strong data-collectible-count="recyclingToken">0</strong>
+          </div>
+
+          <div class="collectible-hud-item">
+            <span aria-hidden="true">⚡</span>
+            <strong data-collectible-count="energySpark">0</strong>
+          </div>
+
+        </div>
+
+      </div>
+
       <div class="progress-summary">
 
         <span>
@@ -221,10 +262,9 @@
             </h2>
 
             <p class="welcome-description">
-              Environmental issues have appeared across several fictional
-              EBM work areas. Your mission is to identify environmental
-              aspects, understand their impacts, evaluate their significance,
-              and select the most effective controls.
+              Environmental issues have appeared across six fictional EBM work
+              areas. Your mission is to find each issue, understand its impact
+              and choose the best action before the Eco Score drops.
             </p>
 
 
@@ -288,8 +328,8 @@
                   <span class="step-number">2</span>
 
                   <div>
-                    <strong>Identify</strong>
-                    <p>Find the environmental aspect and its impact.</p>
+                    <strong>Spot the issue</strong>
+                    <p>Look closely at the picture and identify what is wrong.</p>
                   </div>
                 </li>
 
@@ -297,8 +337,8 @@
                   <span class="step-number">3</span>
 
                   <div>
-                    <strong>Evaluate</strong>
-                    <p>Rate the impact and likelihood.</p>
+                    <strong>Understand</strong>
+                    <p>Choose the environmental impact caused by the issue.</p>
                   </div>
                 </li>
 
@@ -306,8 +346,8 @@
                   <span class="step-number">4</span>
 
                   <div>
-                    <strong>Control</strong>
-                    <p>Select the most suitable action.</p>
+                    <strong>Fix it</strong>
+                    <p>Choose the best action and collect your reward.</p>
                   </div>
                 </li>
 
@@ -538,6 +578,63 @@
               </div>
 
 
+
+              <div class="form-group game-mode-selection">
+
+                <fieldset>
+
+                  <legend>
+                    Game mode
+                    <span class="required-mark" aria-hidden="true">*</span>
+                  </legend>
+
+                  <div class="radio-card-group">
+
+                    <label class="radio-card">
+
+                      <input
+                        type="radio"
+                        name="gameMode"
+                        value="normal"
+                        checked
+                      >
+
+                      <span class="radio-card-content">
+                        <span class="radio-card-icon" aria-hidden="true">🌿</span>
+
+                        <span>
+                          <strong>Normal Mode</strong>
+                          <small>Explore at your own pace</small>
+                        </span>
+                      </span>
+
+                    </label>
+
+                    <label class="radio-card">
+
+                      <input
+                        type="radio"
+                        name="gameMode"
+                        value="timed"
+                      >
+
+                      <span class="radio-card-content">
+                        <span class="radio-card-icon" aria-hidden="true">⏱️</span>
+
+                        <span>
+                          <strong>Timed Challenge</strong>
+                          <small>Rescue all six areas in 8 minutes</small>
+                        </span>
+                      </span>
+
+                    </label>
+
+                  </div>
+
+                </fieldset>
+
+              </div>
+
               <label class="consent-checkbox">
 
                 <input
@@ -620,9 +717,9 @@
               </h2>
 
               <p>
-                EBM's fictional Eco Campus contains environmental situations
-                involving water, electricity, greenhouse-gas emissions,
-                paper, waste and nature conservation.
+                EBM's fictional Eco Campus contains 12 hidden environmental
+                situations across six main areas. Find and fix them before
+                the Eco Score drops.
               </p>
 
 
@@ -630,49 +727,33 @@
 
                 <article>
                   <span aria-hidden="true">🔎</span>
-
                   <div>
-                    <strong>Find the aspect</strong>
-                    <p>
-                      Identify the activity or condition that interacts with
-                      the environment.
-                    </p>
+                    <strong>Spot the issue</strong>
+                    <p>Study the realistic scene and identify the environmental problem.</p>
                   </div>
                 </article>
 
                 <article>
                   <span aria-hidden="true">🌍</span>
-
                   <div>
                     <strong>Understand the impact</strong>
-                    <p>
-                      Determine how the activity affects water, air, land,
-                      people or natural resources.
-                    </p>
-                  </div>
-                </article>
-
-                <article>
-                  <span aria-hidden="true">📊</span>
-
-                  <div>
-                    <strong>Evaluate significance</strong>
-                    <p>
-                      Use impact and occurrence ratings to calculate the
-                      environmental risk level.
-                    </p>
+                    <p>Decide how the issue affects water, energy, waste, air or nature.</p>
                   </div>
                 </article>
 
                 <article>
                   <span aria-hidden="true">🛠️</span>
-
                   <div>
-                    <strong>Apply controls</strong>
-                    <p>
-                      Select a practical action that prevents or reduces the
-                      environmental impact.
-                    </p>
+                    <strong>Choose the best action</strong>
+                    <p>Select the practical fix that prevents or reduces the impact.</p>
+                  </div>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">🏆</span>
+                  <div>
+                    <strong>Collect and unlock</strong>
+                    <p>Earn collectibles, area badges and new access across the campus.</p>
                   </div>
                 </article>
 
@@ -686,12 +767,11 @@
                 </span>
 
                 <div>
-                  <strong>Important</strong>
+                  <strong>Your mission</strong>
 
                   <p>
-                    Any issue involving an applicable compliance obligation
-                    may be treated as significant even when its numerical
-                    rating is lower.
+                    Find and fix all 12 environmental issues. Three perfect
+                    answers in a row activate an Eco Streak bonus.
                   </p>
                 </div>
 
@@ -786,7 +866,7 @@
 
             <div class="factory-control-tip">
               <span aria-hidden="true">🌿</span>
-              <span><strong>Goal:</strong> Restore all 12 areas</span>
+              <span><strong>Goal:</strong> Restore all 6 areas</span>
             </div>
 
           </div>
@@ -859,158 +939,81 @@
               </span>
             </div>
 
-
-            <!-- Production areas -->
+            <!-- Six main mission areas -->
             <button
-              class="area-hotspot"
+              class="area-hotspot area-unlocked"
               type="button"
-              data-area-id="mixing-area"
-              style="left: 13%; top: 20%;"
-              aria-label="Enter Mixing Area"
+              data-area-id="production"
+              style="left: 20%; top: 23%;"
+              aria-label="Enter Production"
             >
-              <span class="hotspot-icon" aria-hidden="true">🥣</span>
-              <span class="hotspot-label">Mixing</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-icon" aria-hidden="true">🏭</span>
+              <span class="hotspot-label">Production</span>
+              <span class="hotspot-status">0/2</span>
             </button>
 
             <button
-              class="area-hotspot"
+              class="area-hotspot area-locked"
               type="button"
-              data-area-id="cutting-area"
-              style="left: 31%; top: 20%;"
-              aria-label="Enter Cutting Area"
+              data-area-id="utilities"
+              style="left: 47%; top: 25%;"
+              aria-label="Utilities locked"
+              aria-disabled="true"
             >
-              <span class="hotspot-icon" aria-hidden="true">🍪</span>
-              <span class="hotspot-label">Cutting</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-icon" aria-hidden="true">⚙️</span>
+              <span class="hotspot-label">Utilities</span>
+              <span class="hotspot-status">🔒</span>
             </button>
 
             <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="packing-area"
-              style="left: 49%; top: 20%;"
-              aria-label="Enter Packing Area"
-            >
-              <span class="hotspot-icon" aria-hidden="true">📦</span>
-              <span class="hotspot-label">Packing</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-
-            <!-- Quality and administrative areas -->
-            <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="laboratory"
-              style="left: 68%; top: 18%;"
-              aria-label="Enter Laboratory"
-            >
-              <span class="hotspot-icon" aria-hidden="true">🧪</span>
-              <span class="hotspot-label">Laboratory</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-            <button
-              class="area-hotspot"
+              class="area-hotspot area-unlocked"
               type="button"
               data-area-id="offices"
-              style="left: 86%; top: 20%;"
+              style="left: 77%; top: 22%;"
               aria-label="Enter Offices"
             >
               <span class="hotspot-icon" aria-hidden="true">🏢</span>
               <span class="hotspot-label">Offices</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-status">0/2</span>
             </button>
 
-
-            <!-- Employee service areas -->
             <button
-              class="area-hotspot"
+              class="area-hotspot area-locked"
               type="button"
-              data-area-id="canteen"
-              style="left: 80%; top: 45%;"
-              aria-label="Enter Canteen"
+              data-area-id="canteen-kitchen"
+              style="left: 78%; top: 58%;"
+              aria-label="Canteen and Kitchen locked"
+              aria-disabled="true"
             >
               <span class="hotspot-icon" aria-hidden="true">🍽️</span>
-              <span class="hotspot-label">Canteen</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-label">Canteen &amp; Kitchen</span>
+              <span class="hotspot-status">🔒</span>
             </button>
 
             <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="kitchen"
-              style="left: 61%; top: 45%;"
-              aria-label="Enter Kitchen"
-            >
-              <span class="hotspot-icon" aria-hidden="true">👨‍🍳</span>
-              <span class="hotspot-label">Kitchen</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-            <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="washrooms"
-              style="left: 90%; top: 66%;"
-              aria-label="Enter Washrooms"
-            >
-              <span class="hotspot-icon" aria-hidden="true">🚻</span>
-              <span class="hotspot-label">Washrooms</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-
-            <!-- Utility and waste areas -->
-            <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="utilities"
-              style="left: 38%; top: 67%;"
-              aria-label="Enter Utilities"
-            >
-              <span class="hotspot-icon" aria-hidden="true">⚙️</span>
-              <span class="hotspot-label">Utilities</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-            <button
-              class="area-hotspot"
+              class="area-hotspot area-locked"
               type="button"
               data-area-id="waste-yard"
-              style="left: 57%; top: 72%;"
-              aria-label="Enter Waste Yard"
+              style="left: 50%; top: 72%;"
+              aria-label="Waste Yard locked"
+              aria-disabled="true"
             >
               <span class="hotspot-icon" aria-hidden="true">♻️</span>
               <span class="hotspot-label">Waste Yard</span>
-              <span class="hotspot-status">0/3</span>
-            </button>
-
-
-            <!-- Outdoor areas -->
-            <button
-              class="area-hotspot"
-              type="button"
-              data-area-id="car-parking"
-              style="left: 17%; top: 67%;"
-              aria-label="Enter Car Parking"
-            >
-              <span class="hotspot-icon" aria-hidden="true">🚗</span>
-              <span class="hotspot-label">Car Parking</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-status">🔒</span>
             </button>
 
             <button
-              class="area-hotspot"
+              class="area-hotspot area-locked"
               type="button"
-              data-area-id="green-area"
-              style="left: 76%; top: 82%;"
-              aria-label="Enter Green Area"
+              data-area-id="outdoor-area"
+              style="left: 19%; top: 68%;"
+              aria-label="Outdoor Area locked"
+              aria-disabled="true"
             >
               <span class="hotspot-icon" aria-hidden="true">🌳</span>
-              <span class="hotspot-label">Green Area</span>
-              <span class="hotspot-status">0/3</span>
+              <span class="hotspot-label">Outdoor Area</span>
+              <span class="hotspot-status">🔒</span>
             </button>
 
 
@@ -1360,32 +1363,41 @@
 
               <div
                 id="scenarioScene"
-                class="scenario-scene"
+                class="scenario-scene scenario-photo-stage"
                 role="img"
-                aria-label="Environmental scenario illustration"
+                aria-label="Environmental scenario photograph"
               >
+
+                <img
+                  id="scenarioSceneImage"
+                  class="scenario-scene-image hidden"
+                  src=""
+                  alt=""
+                >
 
                 <div
                   id="scenarioScenePlaceholder"
                   class="scenario-scene-placeholder"
                 >
                   <span id="scenarioSceneIcon" aria-hidden="true">🌿</span>
-
-                  <p>
-                    Scenario illustration
-                  </p>
+                  <p>Scenario photograph loading</p>
                 </div>
-
-
-                <!--
-                  Clickable hotspots may be generated inside this container
-                  by script.js.
-                -->
 
                 <div
                   id="scenarioHotspotLayer"
                   class="scenario-hotspot-layer"
+                  aria-label="Tap the environmental issue in the picture"
                 ></div>
+
+                <div
+                  id="issueSpotPrompt"
+                  class="issue-spot-prompt"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <span aria-hidden="true">🎯</span>
+                  Tap the environmental issue in the picture
+                </div>
 
               </div>
 
@@ -1417,11 +1429,11 @@
                 <button
                   class="task-step active-task-step"
                   type="button"
-                  data-task-step="aspect"
+                  data-task-step="issue"
                   disabled
                 >
                   <span>1</span>
-                  Aspect
+                  Issue
                 </button>
 
                 <button
@@ -1437,56 +1449,41 @@
                 <button
                   class="task-step"
                   type="button"
-                  data-task-step="rating"
+                  data-task-step="action"
                   disabled
                 >
                   <span>3</span>
-                  Rating
-                </button>
-
-                <button
-                  class="task-step"
-                  type="button"
-                  data-task-step="control"
-                  disabled
-                >
-                  <span>4</span>
-                  Control
+                  Action
                 </button>
 
               </div>
 
 
-              <!-- =============================================
-                   TASK 1: IDENTIFY ASPECT
-              ============================================== -->
-
+              <!-- TASK 1: IDENTIFY ISSUE -->
               <div
                 id="aspectTaskPanel"
                 class="task-panel active-task-panel"
+                data-v2-task="issue"
               >
 
                 <p class="task-label">
-                  Step 1 of 4
+                  Step 1 of 3
                 </p>
 
                 <h3>
-                  Identify the environmental aspect
+                  What is wrong in this scene?
                 </h3>
 
                 <p class="task-instruction">
-                  Select the activity, condition, product or service that
-                  interacts with the environment.
+                  First inspect the picture, then choose the environmental issue.
                 </p>
-
 
                 <div
                   id="aspectOptionList"
                   class="answer-option-list"
                   role="radiogroup"
-                  aria-label="Environmental aspect options"
+                  aria-label="Environmental issue options"
                 ></div>
-
 
                 <button
                   id="submitAspectButton"
@@ -1494,34 +1491,30 @@
                   type="button"
                   disabled
                 >
-                  Confirm Aspect
+                  Confirm Issue
                 </button>
 
               </div>
 
 
-              <!-- =============================================
-                   TASK 2: IDENTIFY IMPACT
-              ============================================== -->
-
+              <!-- TASK 2: IDENTIFY IMPACT -->
               <div
                 id="impactTaskPanel"
                 class="task-panel"
+                data-v2-task="impact"
               >
 
                 <p class="task-label">
-                  Step 2 of 4
+                  Step 2 of 3
                 </p>
 
                 <h3>
-                  Identify the environmental impact
+                  What environmental impact can happen?
                 </h3>
 
                 <p class="task-instruction">
-                  Select the change to the environment caused by the
-                  identified aspect.
+                  Choose how the issue affects water, energy, waste, air or nature.
                 </p>
-
 
                 <div
                   id="impactOptionList"
@@ -1529,7 +1522,6 @@
                   role="radiogroup"
                   aria-label="Environmental impact options"
                 ></div>
-
 
                 <button
                   id="submitImpactButton"
@@ -1543,266 +1535,31 @@
               </div>
 
 
-              <!-- =============================================
-                   TASK 3: RATE IMPACT
-              ============================================== -->
-
-              <div
-                id="ratingTaskPanel"
-                class="task-panel"
-              >
-
-                <p class="task-label">
-                  Step 3 of 4
-                </p>
-
-                <h3>
-                  Evaluate the environmental impact
-                </h3>
-
-                <p class="task-instruction">
-                  Select the consequence level and how frequently the issue
-                  occurs.
-                </p>
-
-
-                <div class="rating-section">
-
-                  <fieldset>
-
-                    <legend>
-                      Environmental consequence
-                    </legend>
-
-                    <div
-                      id="impactLevelOptions"
-                      class="rating-option-grid"
-                    >
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="impactLevel"
-                          value="1"
-                        >
-
-                        <span>
-                          <strong>1 — Minor</strong>
-                          <small>Minor or negligible impact</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="impactLevel"
-                          value="2"
-                        >
-
-                        <span>
-                          <strong>2 — Moderate</strong>
-                          <small>Moderate, short-term impact</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="impactLevel"
-                          value="3"
-                        >
-
-                        <span>
-                          <strong>3 — Major</strong>
-                          <small>Major or long-term impact</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="impactLevel"
-                          value="4"
-                        >
-
-                        <span>
-                          <strong>4 — Severe</strong>
-                          <small>Severe or widespread impact</small>
-                        </span>
-                      </label>
-
-                    </div>
-
-                  </fieldset>
-
-                </div>
-
-
-                <div class="rating-section">
-
-                  <fieldset>
-
-                    <legend>
-                      Probability, occurrence or consumption
-                    </legend>
-
-                    <div
-                      id="likelihoodOptions"
-                      class="rating-option-grid"
-                    >
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="likelihoodLevel"
-                          value="1"
-                        >
-
-                        <span>
-                          <strong>1 — Rare</strong>
-                          <small>Unlikely or occasional</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="likelihoodLevel"
-                          value="2"
-                        >
-
-                        <span>
-                          <strong>2 — Sometimes</strong>
-                          <small>Occurs periodically</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="likelihoodLevel"
-                          value="3"
-                        >
-
-                        <span>
-                          <strong>3 — Intermittent</strong>
-                          <small>Occurs several times</small>
-                        </span>
-                      </label>
-
-
-                      <label class="rating-option">
-                        <input
-                          type="radio"
-                          name="likelihoodLevel"
-                          value="4"
-                        >
-
-                        <span>
-                          <strong>4 — Continuous</strong>
-                          <small>Occurs continuously</small>
-                        </span>
-                      </label>
-
-                    </div>
-
-                  </fieldset>
-
-                </div>
-
-
-                <div class="live-rating-calculator">
-
-                  <div>
-                    <span>Impact</span>
-                    <strong id="selectedImpactValue">—</strong>
-                  </div>
-
-                  <span class="calculation-symbol" aria-hidden="true">
-                    ×
-                  </span>
-
-                  <div>
-                    <span>Occurrence</span>
-                    <strong id="selectedLikelihoodValue">—</strong>
-                  </div>
-
-                  <span class="calculation-symbol" aria-hidden="true">
-                    =
-                  </span>
-
-                  <div>
-                    <span>Rating</span>
-                    <strong id="calculatedRatingValue">—</strong>
-                  </div>
-
-                </div>
-
-
-                <div
-                  id="calculatedImpactCategory"
-                  class="calculated-impact-category hidden"
-                  aria-live="polite"
-                >
-
-                  <span id="calculatedImpactBadge">
-                    Low
-                  </span>
-
-                  <p id="calculatedImpactMessage">
-                    Maintain current controls.
-                  </p>
-
-                </div>
-
-
-                <button
-                  id="submitRatingButton"
-                  class="primary-button full-width-button"
-                  type="button"
-                  disabled
-                >
-                  Confirm Rating
-                </button>
-
-              </div>
-
-
-              <!-- =============================================
-                   TASK 4: SELECT CONTROL
-              ============================================== -->
-
+              <!-- TASK 3: CHOOSE ACTION -->
               <div
                 id="controlTaskPanel"
                 class="task-panel"
+                data-v2-task="action"
               >
 
                 <p class="task-label">
-                  Step 4 of 4
+                  Step 3 of 3
                 </p>
 
                 <h3>
-                  Select the most suitable control
+                  What is the best action?
                 </h3>
 
                 <p class="task-instruction">
-                  Choose the action that best prevents, reduces or controls
-                  the environmental impact.
+                  Choose the practical fix that best prevents or reduces the impact.
                 </p>
-
 
                 <div
                   id="controlOptionList"
                   class="answer-option-list"
                   role="radiogroup"
-                  aria-label="Environmental control options"
+                  aria-label="Corrective action options"
                 ></div>
-
 
                 <button
                   id="submitControlButton"
@@ -1810,9 +1567,26 @@
                   type="button"
                   disabled
                 >
-                  Apply Control
+                  Apply Fix
                 </button>
 
+              </div>
+
+
+              <!-- Hidden compatibility elements for the current script.js -->
+              <div id="ratingTaskPanel" class="task-panel hidden" aria-hidden="true">
+                <div id="impactLevelOptions"></div>
+                <div id="likelihoodOptions"></div>
+                <span id="selectedImpactValue">—</span>
+                <span id="selectedLikelihoodValue">—</span>
+                <span id="calculatedRatingValue">—</span>
+                <div id="calculatedImpactCategory" class="hidden">
+                  <span id="calculatedImpactBadge">Removed</span>
+                  <p id="calculatedImpactMessage">Rating is not used in Version 2.</p>
+                </div>
+                <button id="submitRatingButton" type="button" class="hidden">
+                  Continue
+                </button>
               </div>
 
             </aside>
@@ -1860,15 +1634,48 @@
             </p>
 
 
+            <div class="before-after-reveal">
+
+              <article class="before-after-panel">
+                <span class="summary-label">Before</span>
+                <div class="before-after-image-frame">
+                  <img
+                    id="feedbackBeforeImage"
+                    class="feedback-reveal-image hidden"
+                    src=""
+                    alt="Environmental issue before correction"
+                  >
+                  <span aria-hidden="true">⚠️</span>
+                </div>
+              </article>
+
+              <div class="cause-effect-arrow" aria-hidden="true">→</div>
+
+              <article class="before-after-panel">
+                <span class="summary-label">After</span>
+                <div class="before-after-image-frame resolved-frame">
+                  <img
+                    id="feedbackAfterImage"
+                    class="feedback-reveal-image hidden"
+                    src=""
+                    alt="Environmental issue after correction"
+                  >
+                  <span aria-hidden="true">✅</span>
+                </div>
+              </article>
+
+            </div>
+
+
             <div class="aspect-impact-summary">
 
               <article>
                 <span class="summary-label">
-                  Environmental Aspect
+                  Issue Found
                 </span>
 
                 <strong id="feedbackAspect">
-                  Aspect
+                  Issue
                 </strong>
               </article>
 
@@ -1886,15 +1693,45 @@
                 </strong>
               </article>
 
+              <div class="cause-effect-arrow" aria-hidden="true">
+                →
+              </div>
+
+              <article>
+                <span class="summary-label">
+                  Best Action
+                </span>
+
+                <strong id="feedbackAction">
+                  Action
+                </strong>
+              </article>
+
             </div>
 
 
             <div class="impact-result-card">
 
               <div>
-                <span>Impact Rating</span>
-                <strong id="feedbackImpactRating">0</strong>
+                <span>Issue Status</span>
+                <strong id="feedbackResolutionLabel">Resolved</strong>
               </div>
+
+              <div>
+                <span>Reward</span>
+                <strong id="feedbackCollectibleReward">—</strong>
+              </div>
+
+              <div>
+                <span>Points Earned</span>
+                <strong id="feedbackPointsEarned">0</strong>
+              </div>
+
+            </div>
+
+            <!-- Hidden compatibility IDs -->
+            <span id="feedbackImpactRating" class="hidden">0</span>
+            <span id="feedbackImpactLevel" class="hidden">Removed</span>
 
               <div>
                 <span>Impact Level</span>
@@ -2004,6 +1841,14 @@
               Area Restored
             </p>
 
+            <div class="area-badge-earned" aria-live="polite">
+              <span id="areaCompletionBadgeIcon" aria-hidden="true">🏅</span>
+              <div>
+                <small>Badge earned</small>
+                <strong id="areaCompletionBadgeName">Area Badge</strong>
+              </div>
+            </div>
+
             <h2 id="areaCompletionTitle">
               Mission completed
             </h2>
@@ -2103,6 +1948,56 @@
 
           </div>
 
+
+
+          <section class="dashboard-reward-section">
+
+            <div class="screen-heading compact-heading">
+              <div>
+                <p class="section-kicker">Mission Rewards</p>
+                <h3>Your Collectibles &amp; Badges</h3>
+              </div>
+            </div>
+
+            <div class="dashboard-collectible-grid">
+
+              <article>
+                <span aria-hidden="true">💧</span>
+                <strong data-collectible-count="waterDrop">0</strong>
+                <small>Water Drops</small>
+              </article>
+
+              <article>
+                <span aria-hidden="true">🍃</span>
+                <strong data-collectible-count="greenLeaf">0</strong>
+                <small>Green Leaves</small>
+              </article>
+
+              <article>
+                <span aria-hidden="true">♻️</span>
+                <strong data-collectible-count="recyclingToken">0</strong>
+                <small>Recycling Tokens</small>
+              </article>
+
+              <article>
+                <span aria-hidden="true">⚡</span>
+                <strong data-collectible-count="energySpark">0</strong>
+                <small>Energy Sparks</small>
+              </article>
+
+            </div>
+
+            <div
+              id="earnedBadgeGrid"
+              class="earned-badge-grid"
+              aria-live="polite"
+            >
+              <p class="empty-badge-message">
+                Complete an area to earn its badge.
+              </p>
+            </div>
+
+          </section>
 
           <div class="eco-dashboard-grid">
 
@@ -2670,8 +2565,8 @@
 
 
             <p class="final-result-message">
-              You identified environmental aspects, understood their impacts,
-              evaluated their significance and selected appropriate controls.
+              You found environmental issues, understood their impacts and
+              applied practical actions to restore the Eco Campus.
             </p>
 
 
@@ -2723,7 +2618,7 @@
             <div class="final-result-level">
 
               <span id="finalResultBadge">
-                Eco Learner
+                Eco Beginner
               </span>
 
               <p id="finalResultDescription">
@@ -2751,9 +2646,54 @@
               </article>
 
               <article>
-                <span>High Impacts Identified</span>
-                <strong id="finalHighImpactCount">0</strong>
+                <span>Collectibles Earned</span>
+                <strong id="finalCollectibleCount">0</strong>
               </article>
+
+              <strong id="finalHighImpactCount" class="hidden">0</strong>
+
+            </div>
+
+
+
+            <div class="final-reward-summary">
+
+              <h3>Mission rewards</h3>
+
+              <div class="dashboard-collectible-grid compact-collectibles">
+
+                <article>
+                  <span aria-hidden="true">💧</span>
+                  <strong data-collectible-count="waterDrop">0</strong>
+                  <small>Water Drops</small>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">🍃</span>
+                  <strong data-collectible-count="greenLeaf">0</strong>
+                  <small>Green Leaves</small>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">♻️</span>
+                  <strong data-collectible-count="recyclingToken">0</strong>
+                  <small>Recycling Tokens</small>
+                </article>
+
+                <article>
+                  <span aria-hidden="true">⚡</span>
+                  <strong data-collectible-count="energySpark">0</strong>
+                  <small>Energy Sparks</small>
+                </article>
+
+              </div>
+
+              <div id="finalBadgeList" class="final-badge-list"></div>
+
+              <p class="final-streak-line">
+                Best Eco Streak:
+                <strong id="finalBestStreak">×0</strong>
+              </p>
 
             </div>
 
@@ -2855,7 +2795,7 @@
 
 
             <blockquote>
-              Identify the aspect. Understand the impact. Apply the control.
+              Find it. Fix it. Protect it.
             </blockquote>
 
 
@@ -2962,75 +2902,58 @@
 
         <ol class="instruction-list">
 
-          <li>
-            Select a fictional EBM work area.
-          </li>
-
-          <li>
-            Read the environmental situation carefully.
-          </li>
-
-          <li>
-            Identify the environmental aspect.
-          </li>
-
-          <li>
-            Select the associated environmental impact.
-          </li>
-
-          <li>
-            Rate the impact and occurrence level.
-          </li>
-
-          <li>
-            Select the most appropriate control.
-          </li>
-
-          <li>
-            Complete all areas and choose three personal commitments.
-          </li>
+          <li>Choose Normal Mode or the 8-minute Timed Challenge.</li>
+          <li>Move through the fictional Eco Campus with W, A, S, D or the arrow keys.</li>
+          <li>Approach an unlocked area and press Enter.</li>
+          <li>Study the realistic picture and tap the hidden environmental issue.</li>
+          <li>Identify the issue, its impact and the best corrective action.</li>
+          <li>Collect Water Drops, Green Leaves, Recycling Tokens and Energy Sparks.</li>
+          <li>Complete both situations in an area to earn its badge and unlock new areas.</li>
+          <li>Build a three-answer Eco Streak for bonus points.</li>
 
         </ol>
 
-
         <div class="modal-information-box">
 
-          <strong>Impact rating formula</strong>
+          <strong>Mission objective</strong>
 
           <p>
-            Environmental Impact Rating = Impact Level × Likelihood,
-            Occurrence or Consumption Level
+            Find and fix all 12 environmental issues before the Eco Score drops.
           </p>
 
         </div>
 
+        <div class="impact-legend reward-legend">
 
-        <div class="impact-legend">
-
-          <div class="impact-legend-item low-legend-item">
-            <span>1–4</span>
-
+          <div class="impact-legend-item">
+            <span>💧</span>
             <div>
-              <strong>Low</strong>
-              <small>Acceptable</small>
+              <strong>Water Drop</strong>
+              <small>Water-saving mission</small>
             </div>
           </div>
 
-          <div class="impact-legend-item medium-legend-item">
-            <span>6–9</span>
-
+          <div class="impact-legend-item">
+            <span>🍃</span>
             <div>
-              <strong>Medium</strong>
-              <small>Tolerable</small>
+              <strong>Green Leaf</strong>
+              <small>Nature-saving mission</small>
             </div>
           </div>
 
-          <div class="impact-legend-item high-legend-item">
-            <span>12–16</span>
-
+          <div class="impact-legend-item">
+            <span>♻️</span>
             <div>
-              <strong>High</strong>
-              <small>Significant</small>
+              <strong>Recycling Token</strong>
+              <small>Waste-saving mission</small>
+            </div>
+          </div>
+
+          <div class="impact-legend-item">
+            <span>⚡</span>
+            <div>
+              <strong>Energy Spark</strong>
+              <small>Energy-saving mission</small>
             </div>
           </div>
 
@@ -3289,6 +3212,22 @@
   </template>
 
 
+
+  <!-- Area badge template -->
+  <template id="areaBadgeTemplate">
+
+    <article class="earned-badge-card">
+      <span class="earned-badge-icon" aria-hidden="true">🏅</span>
+
+      <div>
+        <strong class="earned-badge-name">Area Badge</strong>
+        <small class="earned-badge-message">Area restored</small>
+      </div>
+    </article>
+
+  </template>
+
+
   <!-- Answer option template -->
   <template id="answerOptionTemplate">
 
@@ -3360,7 +3299,7 @@
 
        Loading order matters:
        1. gameData.js contains the areas and scenarios.
-       2. impactMatrix.js contains environmental rating logic.
+       2. impactMatrix.js contains scoring, rewards and progression logic.
        3. script.js controls the complete game.
   ========================================================== -->
 
